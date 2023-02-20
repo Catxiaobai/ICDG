@@ -55,6 +55,7 @@ def getDisasmCode(binary):
             f.write(binary)
         # 调用外部程序evm-1.8.14解析tmp.txt文件中的字节码
         disasmCode = runCMDWithTimeout(["evm", "disasm", "tmp.txt"])
+        print(disasmCode)
     # 捕获所有异常
     except Exception as e:
         # 输出错误信息
