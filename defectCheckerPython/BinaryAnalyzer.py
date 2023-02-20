@@ -164,7 +164,7 @@ class BinaryAnalyzer:
         self.allCirclePath.append(circlePath)  # 将循环路径添加到所有循环路径中
 
     def findCallPathAndLoops(self, currentPath, block, visited):
-        print(currentPath)
+        # print(currentPath)
         # 从当前代码块出发，记录已访问过的起始位置
         self.visitBlock.add(block.startBlockPos)
         # 如果代码块包含CALL指令，则将当前路径添加到self.allCallPath列表中
@@ -271,6 +271,7 @@ class BinaryAnalyzer:
                 # 如果startBlockPos在visitBlock中，则表示该基本块已被访问
                 visitedInstr += instrNum
             totalInstr += instrNum
+            print(key, value.info())
 
         # 计算代码覆盖率
         self.codeCoverage = float(visitedInstr) / totalInstr
