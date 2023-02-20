@@ -1,0 +1,281 @@
+#! /usr/bin/python3
+# -*-coding:utf-8-*-
+
+"""
+@Time: 2023/2/14 14:17
+@Author : mengjie-1998@qq.com
+@Remark: a brief description
+"""
+import Utils
+from BasicBlock import BasicBlock
+from EVMSimulator import EVMSimulator
+
+
+class BinaryAnalyzer:
+    def __init__(self, bytecode: str):
+        self.pos2BlockMap = {}  # 记录每个代码块的开始位置和结束位置
+        self.publicFunctionStartList = []  # 所有其他函数可以调用的函数列表（不包括回退函数）
+        self.stackEvents = []  # 栈事件
+        self.allInstrs = set()  # 所有的操作指令集合
+        self.startPosList = []  # 代码块的开始位置列表
+        self.disasm = None  # 反汇编器对象
+        self.disasmCode = None  # 反汇编后的代码字符串
+        self.versionGap = False  # 是否存在版本间的不兼容
+        self.legalContract = True  # 是否为合法的合约代码
+        self.codeCoverage = 0  # 代码覆盖率
+        self.fallbackPos = -1  # 回退函数的位置
+        self.misRecognizedJump = False  # 是否存在无法识别的跳转指令
+        self.cyclomatic_complexity = 0  # 圈复杂度
+        self.numInster = 0  # 指令数量
+        self.visitBlock = set()  # 记录访问过的代码块
+        self.totalEdge = set()  # 记录所有边
+
+        self.allCallPath = None  # 所有调用路径
+        self.allCirclePath2StartPos = None  # 所有循环路径的起始位置
+        self.allCirclePath = None  # 所有循环路径
+
+        # 初始化
+        if self.init(bytecode):
+            # 获取基本块
+            self.getBasicBlock()
+            # 添加 fall edges
+            self.addFallEdges()
+            # 构建 CFG（控制流图）
+            self.buildCFG()
+            # 检测代码块的特征
+            self.detectBlockFeatures()
+
+    # 初始化函数
+    def init(self, bytecode: str) -> bool:
+        # 获取反汇编后的代码字符串
+        disasmCode = Utils.getDisasmCode(bytecode)
+        # 如果获取失败或者长度小于 1 或者不包含 STOP 操作，说明合约代码不合法
+        if disasmCode is None or len(disasmCode) < 1 or 'STOP' not in disasmCode:
+            self.legalContract = False
+            print('Disasm Failed')
+            return False
+        # 否则记录反汇编器和反汇编后的代码
+        self.disasmCode = disasmCode
+        self.disasm = Utils.disasmParser(disasmCode)
+        print(self.disasm)
+        print(self.disasmCode)
+        # 初始化其他属性
+        self.allCallPath = []
+        self.allCirclePath2StartPos = {}
+        self.allCirclePath = []
+        self.visitBlock = set()
+        self.totalEdge = set()
+        return True
+
+    def getBasicBlock(self) -> None:
+        # 定义一个BasicBlock对象，并初始化
+        block = BasicBlock()
+        # 定义一个布尔值start用来表示块的起始位置，lastPos用来存储上一个位置
+        start = True
+        lastPos = -1
+        # 对指令进行循环处理
+        for i in range(len(self.disasm)):
+            # 获取指令对和位置
+            instr_pair = self.disasm[i]
+            pos = instr_pair[0]
+            # 获取指令
+            instr = instr_pair[1][0]
+            # 将指令添加到所有指令集合中
+            self.allInstrs.add(instr)
+            # 如果块的起始位置为True或者当前指令为JUMPDEST，则创建一个新的块
+            if start or instr == 'JUMPDEST':
+                # 如果不是第一个块，将上一个块的结束位置设置为上一个位置，并将其添加到块映射表中
+                if i != 0:
+                    block.endBlockPos = lastPos
+                    self.pos2BlockMap[block.startBlockPos] = block
+                # 初始化一个新的块并设置其起始位置
+                block = BasicBlock()
+                block.startBlockPos = pos
+                # 将起始位置添加到起始位置列表中
+                self.startPosList.append(pos)
+                start = False
+            # 如果当前指令是JUMPI，则说明当前块可能是条件块
+            elif instr == 'JUMPI':
+                start = True
+                block.jumpType = BasicBlock.CONDITIONAL
+            # 如果当前指令是JUMP，则说明当前块是无条件跳转块
+            elif instr == 'JUMP':
+                start = True
+                block.jumpType = BasicBlock.UNCONDITIONAL
+            # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
+            if instr in {'STOP', 'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
+                start = True
+                block.jumpType = BasicBlock.TERMINAL
+            # 将指令对添加到块的指令列表中，并将指令添加到块的指令字符串中
+            block.instrList.append(instr_pair)
+            block.instrString.join(f'{instr} ')
+            # 将lastPos设置为当前位置，如果当前位置为最后一个位置，则将当前块的结束位置设置为lastPos，并将其添加到块映射表中
+            lastPos = pos
+            if i == len(self.disasm) - 1:
+                block.endBlockPos = lastPos
+                self.pos2BlockMap[block.startBlockPos] = block
+
+    def addFallEdges(self) -> None:
+        # 添加从当前基本块到“落地点”（即下一个基本块）的边
+        for i in range(len(self.startPosList) - 1):
+            startPos = self.startPosList[i]  # 获取当前基本块的起始位置
+            block = self.pos2BlockMap[startPos]  # 根据起始位置获取基本块
+            if block.jumpType in {BasicBlock.FALL, BasicBlock.CONDITIONAL}:  # 如果基本块的跳转类型为“落地”或“有条件跳转”
+                block.fallPos = self.startPosList[i + 1]  # 在当前基本块上设置“落地点”（即下一个基本块的起始位置）
+
+    def buildCFG(self):
+        # 通过 EVMSimulator 类的实例化获取控制流图
+        simulator = EVMSimulator(self.pos2BlockMap)
+        # 更新控制流图相关的变量
+        self.pos2BlockMap = simulator.pos2BlockMap
+        self.stackEvents = simulator.stackEvents
+        self.versionGap = simulator.versionGap
+        self.misRecognizedJump = simulator.misRecognizedJump
+        if self.versionGap:
+            # 如果字节码版本不支持，则打印警告信息
+            print("Bytecode version may not support. The default Solidity version is 0.4.25;")
+
+    def flagLoop(self, totalPath, startLoopPos):
+        startLoopBlock = self.pos2BlockMap[startLoopPos]  # 获取循环的起始基本块
+        startLoopBlock.isCircleStart = True  # 在起始基本块上设置循环的起始标记
+        start = False
+        circlePath = []
+        for i in range(len(totalPath)):
+            pos = totalPath[i]  # 获取当前基本块的起始位置
+            if pos == startLoopPos:
+                start = True
+            if start:
+                block = self.pos2BlockMap[pos]  # 获取当前基本块
+                block.isCircle = True  # 在当前基本块上设置循环标记
+                circlePath.append(block.startBlockPos)  # 将当前基本块的起始位置添加到循环路径中
+                if i < len(totalPath) - 1:
+                    # 如果不是最后一个基本块，则添加一条从当前基本块到下一个基本块的路径
+                    path = str(pos) + "_" + str(totalPath[i + 1])
+                    self.allCirclePath2StartPos[path] = startLoopPos
+                elif i == len(totalPath) - 1:
+                    # 如果是最后一个基本块，则添加一条从当前基本块到循环起始基本块的路径
+                    path = str(pos) + "_" + str(startLoopPos)
+                    self.allCirclePath2StartPos[path] = startLoopPos
+        self.allCirclePath.append(circlePath)  # 将循环路径添加到所有循环路径中
+
+    def printPath(self, currentPath):
+        # 生成路径字符串，用空格隔开每个基本块的起始位置
+        path = " ".join(str(pos) for pos in currentPath)
+        # 输出路径长度和路径字符串
+        print(f"Length: {len(currentPath)} ==> {path}")
+
+    def findCallPathAndLoops(self, currentPath, block, visited):
+        # 从当前代码块出发，记录已访问过的起始位置
+        self.visitBlock.add(block.startBlockPos)
+        # 如果代码块包含CALL指令，则将当前路径添加到self.allCallPath列表中
+        if "CALL " in block.instrString:
+            self.allCallPath.append(currentPath)
+
+        # 根据跳转类型分别处理条件跳转、无条件跳转和跌落跳转
+        if block.jumpType == BasicBlock.CONDITIONAL:
+            # 处理条件跳转的左分支
+            left_branch = block.conditionalJumpPos
+            path = f"{block.startBlockPos}_{left_branch}"
+            self.totalEdge.add(path)
+
+            # 如果左分支未被访问，则继续寻找
+            if path not in visited and left_branch > 0:
+                # 将左分支加入当前路径，然后递归调用函数查找调用路径和循环
+                visited.add(path)
+                newPath = currentPath.copy()
+                newPath.append(left_branch)
+                self.findCallPathAndLoops(newPath, self.pos2BlockMap[left_branch], visited)
+            # 如果左分支已经在已知的环路上，则将该环路标记为循环
+            elif path in self.allCirclePath2StartPos:
+                self.flagLoop(currentPath, self.allCirclePath2StartPos[path])
+            # 如果左分支指向当前路径中的某一代码块，则将该路径标记为循环
+            elif left_branch > 0 and left_branch in currentPath:
+                self.flagLoop(currentPath, block.startBlockPos)
+
+            # 处理条件跳转的右分支
+            right_branch = block.fallPos
+            path = f"{block.startBlockPos}_{right_branch}"
+            self.totalEdge.add(path)
+            # 如果右分支未被访问，则继续寻找
+            if path not in visited and right_branch > 0:
+                # 将右分支加入当前路径，然后递归调用函数查找调用路径和循环
+                visited.add(path)
+                newPath = currentPath.copy()
+                newPath.append(right_branch)
+                self.findCallPathAndLoops(newPath, self.pos2BlockMap[right_branch], visited)
+            # 如果右分支已经在已知的环路上，则将该环路标记为循环
+            elif path in self.allCirclePath2StartPos:
+                self.flagLoop(currentPath, self.allCirclePath2StartPos[path])
+            # 如果右分支指向当前路径中的某一代码块，则将该路径标记为循环
+            elif right_branch > 0 and right_branch in currentPath:
+                self.flagLoop(currentPath, block.startBlockPos)
+
+        elif block.jumpType == BasicBlock.UNCONDITIONAL:
+            # 处理无条件跳转
+            jumpPos = block.unconditionalJumpPos
+            path = f"{block.startBlockPos}_{jumpPos}"
+            self.totalEdge.add(path)
+            # 如果跳转位置未被访问，则继续寻找
+            if path not in visited and jumpPos > 0:
+                visited.add(path)
+                newPath = currentPath.copy()
+                newPath.append(jumpPos)
+                self.findCallPathAndLoops(newPath, self.pos2BlockMap[jumpPos], visited)
+            # 如果跳转位置已经在当前路径上，则标记循环
+            elif jumpPos > 0 and jumpPos in currentPath:
+                self.flagLoop(currentPath, block.startBlockPos)
+            # 如果跳转路径已经存在于已知循环路径列表，则标记循环
+            elif path in self.allCirclePath2StartPos:
+                self.flagLoop(currentPath, self.allCirclePath2StartPos[path])
+
+        elif block.jumpType == BasicBlock.FALL:
+            # 处理fall-through
+            jumpPos = block.fallPos
+            path = f"{block.startBlockPos}_{jumpPos}"
+            self.totalEdge.add(path)
+            # 如果跳转位置未被访问，则继续寻找
+            if path not in visited:
+                visited.add(path)
+                newPath = currentPath.copy()
+                newPath.append(jumpPos)
+                self.findCallPathAndLoops(newPath, self.pos2BlockMap[jumpPos], visited)
+
+    def detectBlockFeatures(self):
+        block = self.pos2BlockMap.get(0)
+        # 检测公共函数的位置
+        while block.fallPos != -1:
+            print(block.info())
+            if block.instrList[0][1][0] == "JUMPDEST":
+                break
+            if block.conditionalJumpPos != -1 and block.conditionalJumpExpression.startswith("EQ"):
+                # 找到以EQ开头的条件语句
+                self.publicFunctionStartList.append(block.conditionalJumpPos)
+            else:
+                # 如果没有以EQ开头的条件语句，则fallbackPos = conditionalJumpPos
+                self.fallbackPos = block.conditionalJumpPos
+            block = self.pos2BlockMap.get(block.fallPos)
+
+        if len(self.pos2BlockMap) <= 4 and "CALLVALUE" in self.pos2BlockMap.get(0).instrString:
+            # 检查CALLVALUE是否在第一个基本块中，如果是，则将fallbackPos设置为0
+            self.fallbackPos = 0
+
+        # 检测fallback函数的位置
+        self.findCallPathAndLoops([], self.pos2BlockMap.get(0), set())
+
+        visitedInstr = 0
+        totalInstr = 0
+        for key, value in self.pos2BlockMap.items():
+            tmp = value
+            instrNum = len(tmp.instrList)
+            if tmp.startBlockPos in self.visitBlock:
+                # 如果startBlockPos在visitBlock中，则表示该基本块已被访问
+                visitedInstr += instrNum
+            totalInstr += instrNum
+
+        # 计算代码覆盖率
+        self.codeCoverage = float(visitedInstr) / totalInstr
+        # 计算圈复杂度
+        self.cyclomatic_complexity = len(self.totalEdge) - len(self.visitBlock) + 2
+        # 统计指令数量
+        self.numInster = len(self.disasm)
+        # print("Start Detecting code smells")  # 开始检测代码异味
