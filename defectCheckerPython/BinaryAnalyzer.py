@@ -271,7 +271,8 @@ class BinaryAnalyzer:
                 # 如果startBlockPos在visitBlock中，则表示该基本块已被访问
                 visitedInstr += instrNum
             totalInstr += instrNum
-            print(key, value.info())
+            print(value.info())
+            print(visitedInstr, totalInstr)
 
         # 计算代码覆盖率
         self.codeCoverage = float(visitedInstr) / totalInstr
