@@ -9,7 +9,7 @@
 import Utils
 from BasicBlock import BasicBlock
 from EVMSimulator import EVMSimulator
-
+from graphviz import Digraph  # 导入graphviz库
 
 def printPath(currentPath):
     # 生成路径字符串，用空格隔开每个基本块的起始位置
@@ -51,6 +51,8 @@ class BinaryAnalyzer:
             self.buildCFG()
             # 检测代码块的特征
             self.detectBlockFeatures()
+            # 绘制cfg图
+            self.drawCFG()
 
     # 初始化函数
     def init(self, bytecode: str) -> bool:
@@ -271,13 +273,33 @@ class BinaryAnalyzer:
                 # 如果startBlockPos在visitBlock中，则表示该基本块已被访问
                 visitedInstr += instrNum
             totalInstr += instrNum
-            value.info()
-            print(visitedInstr, totalInstr)
+            # value.info()
+            # print(visitedInstr, totalInstr)
 
         # 计算代码覆盖率
-        self.codeCoverage = float(visitedInstr) / (totalInstr-1)
+        self.codeCoverage = float(visitedInstr) / totalInstr
         # 计算圈复杂度
         self.cyclomatic_complexity = len(self.totalEdge) - len(self.visitBlock) + 2
         # 统计指令数量
         self.numInster = len(self.disasm)
         # print("Start Detecting code smells")  # 开始检测代码异味
+
+    def drawCFG(self):
+        graph = Digraph("CFG", 'comment', None, None, 'png', None, "UTF-8",
+                        {'rankdir': 'TB'},
+                        {'color': 'black', 'fontcolor': 'black',
+                         'style': 'rounded',
+                         'shape': 'box'},
+                        {'color': '#999999', 'fontcolor': '#888888', 'fontsize': '10', 'fontname': 'FangSong'}, None,
+                        False)
+        for key, value in self.pos2BlockMap.items():
+            value.info()
+            graph.node(value.startBlockPos)
+            if value.fallPos != -1:
+                graph.edge(value.startBlockPos, value.fallPos)
+            if value.conditionalJumpPos != -1:
+                graph.edge(value.startBlockPos, value.conditionalJumpPos)
+            if value.unconditionalJumpPos != -1:
+                graph.edge(value.startBlockPos, value.unconditionalJumpPos)
+        # graph.view()
+        graph.render('cfg.gv', view=True)
