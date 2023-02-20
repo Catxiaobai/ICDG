@@ -302,4 +302,4 @@ class BinaryAnalyzer:
             if value.unconditionalJumpPos != -1:
                 graph.edge(str(value.startBlockPos), str(value.unconditionalJumpPos))
         # graph.view()
-        graph.render('cfg.gv', view=True)
+        graph.render('cfg', view=True)
