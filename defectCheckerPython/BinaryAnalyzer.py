@@ -11,6 +11,13 @@ from BasicBlock import BasicBlock
 from EVMSimulator import EVMSimulator
 
 
+def printPath(currentPath):
+    # 生成路径字符串，用空格隔开每个基本块的起始位置
+    path = " ".join(str(pos) for pos in currentPath)
+    # 输出路径长度和路径字符串
+    print(f"Length: {len(currentPath)} ==> {path}")
+
+
 class BinaryAnalyzer:
     def __init__(self, bytecode: str):
         self.pos2BlockMap = {}  # 记录每个代码块的开始位置和结束位置
@@ -156,13 +163,8 @@ class BinaryAnalyzer:
                     self.allCirclePath2StartPos[path] = startLoopPos
         self.allCirclePath.append(circlePath)  # 将循环路径添加到所有循环路径中
 
-    def printPath(self, currentPath):
-        # 生成路径字符串，用空格隔开每个基本块的起始位置
-        path = " ".join(str(pos) for pos in currentPath)
-        # 输出路径长度和路径字符串
-        print(f"Length: {len(currentPath)} ==> {path}")
-
     def findCallPathAndLoops(self, currentPath, block, visited):
+        print(currentPath)
         # 从当前代码块出发，记录已访问过的起始位置
         self.visitBlock.add(block.startBlockPos)
         # 如果代码块包含CALL指令，则将当前路径添加到self.allCallPath列表中
