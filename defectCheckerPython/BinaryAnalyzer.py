@@ -294,12 +294,12 @@ class BinaryAnalyzer:
                         False)
         for key, value in self.pos2BlockMap.items():
             value.info()
-            graph.node(value.startBlockPos)
+            graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
-                graph.edge(value.startBlockPos, value.fallPos)
+                graph.edge(str(value.startBlockPos), str(value.fallPos))
             if value.conditionalJumpPos != -1:
-                graph.edge(value.startBlockPos, value.conditionalJumpPos)
+                graph.edge(str(value.startBlockPos), str(value.conditionalJumpPos))
             if value.unconditionalJumpPos != -1:
-                graph.edge(value.startBlockPos, value.unconditionalJumpPos)
+                graph.edge(str(value.startBlockPos), str(value.unconditionalJumpPos))
         # graph.view()
         graph.render('cfg.gv', view=True)
