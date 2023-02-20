@@ -74,6 +74,39 @@ def parserFromSourceCodeFile(filePath, mainContracts):
             print(defectChecker.printAllDetectResult())
 
 
+def parserFromSourceCodeFileCross(filePath, mainContracts):
+    # 用 solc 编译合约源代码，获取其二进制代码
+    cmd = ['solc', '--bin-runtime', filePath]
+    try:
+        binary = subprocess.check_output(cmd).decode()
+    except subprocess.CalledProcessError as e:
+        print('Compile Error:', filePath)
+        return
+
+    if not binary or len(binary) < 1:
+        print('Compile Error:', filePath)
+        return
+
+    tmp = binary.split("\n")
+    print(tmp)
+    # 遍历 solc 输出的二进制代码字符串列表
+    for i in range(len(tmp) - 1):
+        # 如果当前字符串是 "Binary"，则该字符串的上一行是合约地址，下一行是合约二进制代码
+        if tmp[i].startswith('Binary'):
+            address = tmp[i - 1].replace('=', '').replace(' ', '').replace('\n', '')  # 获取合约地址
+            bytecode = tmp[i + 1]  # 获取合约二进制代码
+
+            # # 如果该合约不是我们需要分析的主要合约，则继续遍历
+            # if mainContracts not in address:
+            #     continue
+
+            print(address)
+            print(bytecode)
+            # # 对合约二进制代码进行代码质量问题检测，并打印检测结果
+            # defectChecker = parserFromBytecode(bytecode)
+            # print(defectChecker.printAllDetectResult())
+
+
 def main():
     start_time = time.time()  # 计时开始
     # 从字节码检测缺陷
