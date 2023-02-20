@@ -11,6 +11,7 @@ from BasicBlock import BasicBlock
 from EVMSimulator import EVMSimulator
 from graphviz import Digraph  # 导入graphviz库
 
+
 def printPath(currentPath):
     # 生成路径字符串，用空格隔开每个基本块的起始位置
     path = " ".join(str(pos) for pos in currentPath)

@@ -55,7 +55,7 @@ def parserFromSourceCodeFile(filePath, mainContracts):
         return
 
     tmp = binary.split("\n")
-
+    print(tmp)
     # 遍历 solc 输出的二进制代码字符串列表
     for i in range(len(tmp) - 1):
         # 如果当前字符串是 "Binary"，则该字符串的上一行是合约地址，下一行是合约二进制代码
