@@ -57,8 +57,6 @@ class BinaryAnalyzer:
         # 否则记录反汇编器和反汇编后的代码
         self.disasmCode = disasmCode
         self.disasm = Utils.disasmParser(disasmCode)
-        print("disasm", self.disasm)
-        print("disasmCode", self.disasmCode)
         # 初始化其他属性
         self.allCallPath = []
         self.allCirclePath2StartPos = {}
@@ -244,7 +242,7 @@ class BinaryAnalyzer:
         block = self.pos2BlockMap.get(0)
         # 检测公共函数的位置
         while block.fallPos != -1:
-            print(block.info())
+            # print(block.info())
             if block.instrList[0][1][0] == "JUMPDEST":
                 break
             if block.conditionalJumpPos != -1 and block.conditionalJumpExpression.startswith("EQ"):
