@@ -116,7 +116,7 @@ def main():
     # print(byteDefectChecker.printAllDetectResult())
     # 从源代码检测缺陷
     filePath = "1.sol"
-    parserFromSourceCodeFile(filePath, "Test2")
+    parserFromSourceCodeFileCross(filePath, "Test2")
 
     end_time = time.time()  # 计时结束
     print(f"Running time: {end_time - start_time:.2f} s")  # 输出总运行时间
