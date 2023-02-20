@@ -271,11 +271,11 @@ class BinaryAnalyzer:
                 # 如果startBlockPos在visitBlock中，则表示该基本块已被访问
                 visitedInstr += instrNum
             totalInstr += instrNum
-            print(value.info())
+            value.info()
             print(visitedInstr, totalInstr)
 
         # 计算代码覆盖率
-        self.codeCoverage = float(visitedInstr) / totalInstr
+        self.codeCoverage = float(visitedInstr) / (totalInstr-1)
         # 计算圈复杂度
         self.cyclomatic_complexity = len(self.totalEdge) - len(self.visitBlock) + 2
         # 统计指令数量
