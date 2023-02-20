@@ -81,8 +81,8 @@ def main():
     # byteDefectChecker = parserFromBytecode(bytecode)
     # print(byteDefectChecker.printAllDetectResult())
     # 从源代码检测缺陷
-    filePath = "test.sol"
-    parserFromSourceCodeFile(filePath, "Victim")
+    filePath = "1.sol"
+    parserFromSourceCodeFile(filePath, "Overflow")
 
     end_time = time.time()  # 计时结束
     print(f"Running time: {end_time - start_time:.2f} s")  # 输出总运行时间

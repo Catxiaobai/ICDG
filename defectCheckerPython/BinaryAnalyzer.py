@@ -57,8 +57,8 @@ class BinaryAnalyzer:
         # 否则记录反汇编器和反汇编后的代码
         self.disasmCode = disasmCode
         self.disasm = Utils.disasmParser(disasmCode)
-        print(self.disasm)
-        print(self.disasmCode)
+        print("disasm", self.disasm)
+        print("disasmCode", self.disasmCode)
         # 初始化其他属性
         self.allCallPath = []
         self.allCirclePath2StartPos = {}
