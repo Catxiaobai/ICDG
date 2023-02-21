@@ -297,6 +297,7 @@ class BinaryAnalyzer:
         # 统计指令数量
         self.numInster = len(self.disasm)
         # print("Start Detecting code smells")  # 开始检测代码异味
+        print('函数入口', self.publicFunctionStartList)
 
     # myTool:绘制CFG图
     def drawCFG(self):
@@ -309,7 +310,10 @@ class BinaryAnalyzer:
                         False)
         for key, value in self.pos2BlockMap.items():
             value.infoPrint()
-            graph.node(str(value.startBlockPos))
+            if value.function != '':
+                graph.node(str(value.startBlockPos), color='red')
+            else:
+                graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
                 graph.edge(str(value.startBlockPos), str(value.fallPos))
             if value.conditionalJumpPos != -1:
