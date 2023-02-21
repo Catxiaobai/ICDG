@@ -310,7 +310,7 @@ class BinaryAnalyzer:
                         False)
         for key, value in self.pos2BlockMap.items():
             value.infoPrint()
-            if value.function != '':
+            if value.function != 'NULL':
                 graph.node(str(value.startBlockPos), color='red')
             else:
                 graph.node(str(value.startBlockPos))
