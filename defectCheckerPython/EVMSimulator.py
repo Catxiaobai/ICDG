@@ -131,7 +131,7 @@ class EVMSimulator:
                 # 从栈顶依次弹出两个元素
                 address = evm_stack.pop()
                 condition = evm_stack.pop()
-                print('----------------JUMPI的跳转:', address, condition)
+                # print('----------------JUMPI的跳转:', address, condition)
                 legalJump = False
                 # 判断地址是否是数字
                 if Utils.getType(address) == Utils.DIGITAL:
@@ -175,7 +175,7 @@ class EVMSimulator:
                         currentBlock.moneyCall = False
                 legalJump = False
                 print('----------------CALL的跨合约跳转', recipient)
-
+                print('----------------CALL剩下的跨合约跳转时的栈信息', evm_stack)
                 # todo:完成跨合约调用跳转
             else:
                 legalInstr = False
