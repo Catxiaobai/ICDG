@@ -98,8 +98,8 @@ def parserFromSourceCodeFileCross(filePath, mainContracts):
             bytecode = tmp[i + 1]  # 获取合约二进制代码
 
             # # 如果该合约不是我们需要分析的主要合约，则继续遍历
-            # if mainContracts not in address:
-            #     continue
+            if mainContracts not in address:
+                continue
 
             # print(address)
             # print(bytecode)
@@ -117,7 +117,7 @@ def main():
     # print(byteDefectChecker.printAllDetectResult())
     # 从源代码检测缺陷
     filePath = "1.sol"
-    parserFromSourceCodeFileCross(filePath, "Test2")
+    parserFromSourceCodeFileCross(filePath, "Test1")
 
     end_time = time.time()  # 计时结束
     print(f"Running time: {end_time - start_time:.2f} s")  # 输出总运行时间
