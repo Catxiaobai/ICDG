@@ -98,11 +98,11 @@ def parserFromSourceCodeFileCross(filePath, mainContracts):
             bytecode = tmp[i + 1]  # 获取合约二进制代码
 
             # # 如果该合约不是我们需要分析的主要合约，则继续遍历
-            # if mainContracts not in address:
-            #     continue
+            if mainContracts not in address:
+                continue
 
-            print(address)
-            print(bytecode)
+            # print(address)
+            # print(bytecode)
             # # 对合约二进制代码进行代码质量问题检测，并打印检测结果
             defectChecker = parserFromBytecode(bytecode)
             print(defectChecker.printAllDetectResult())

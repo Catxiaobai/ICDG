@@ -131,11 +131,13 @@ class EVMSimulator:
                 # 从栈顶依次弹出两个元素
                 address = evm_stack.pop()
                 condition = evm_stack.pop()
+                print('----------------JUMPI的跳转:', address, condition)
                 legalJump = False
                 # 判断地址是否是数字
                 if Utils.getType(address) == Utils.DIGITAL:
                     # 解析跳转位置
                     jumpPos = int(address.split("_")[0])
+                    print(jumpPos)
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = -1
@@ -171,7 +173,7 @@ class EVMSimulator:
                     if amount == 0:
                         currentBlock.moneyCall = False
                 legalJump = False
-                print(recipient)
+                print('----------------CALL的跨合约跳转', recipient)
 
                 # todo:完成跨合约调用跳转
             else:
