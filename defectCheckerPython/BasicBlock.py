@@ -36,7 +36,7 @@ class BasicBlock:
         self.moneyCall = False  # 是否调用了合约中的send或transfer方法
 
         # myTool:关于call跨合约调用相关
-        self.function = ""  # 标记该基本块属于哪个函数
+        self.function = "NULL"  # 标记该基本块属于哪个函数
         self.callCrossContract = False
 
     # myTool:输出基本块信息

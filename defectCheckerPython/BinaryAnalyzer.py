@@ -297,7 +297,7 @@ class BinaryAnalyzer:
         # 统计指令数量
         self.numInster = len(self.disasm)
         # print("Start Detecting code smells")  # 开始检测代码异味
-        print('函数入口', self.publicFunctionStartList)
+        # print('函数入口', self.publicFunctionStartList)
 
     # myTool:绘制CFG图
     def drawCFG(self):

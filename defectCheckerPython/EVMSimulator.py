@@ -149,9 +149,9 @@ class EVMSimulator:
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = jumpPos
                         self.pos2BlockMap[currentBlockID].conditionalJumpExpression = condition
+                        if condition.startswith("EQ"):
+                            self.pos2BlockMap[jumpPos].function = re.split('[(_,)]', condition)[2]
                     legalJump = True
-                    if condition.startswith("EQ"):
-                        self.pos2BlockMap[currentBlockID].function = re.split('[(_,)]', condition)[2]
                 if not legalJump:
                     # 未能解析出跳转地址，报错
                     print(f"Error JUMPI on: {current_PC}")
