@@ -15,6 +15,7 @@ class BasicBlock:
     UNCONDITIONAL = 2  # 无条件跳转
     FALL = 3  # 顺序执行
     TERMINAL = 4  # 终止执行
+    CROSS = 5  # myTool:跨合约跳转
 
     def __init__(self):
         # 初始化一些变量
@@ -29,12 +30,16 @@ class BasicBlock:
         self.conditionalJumpPos = -1  # 有条件跳转的目标位置
         self.conditionalJumpExpression = ""  # 有条件跳转的条件表达式
         self.unconditionalJumpPos = -1  # 无条件跳转的目标位置
-        self.jumpType = 3  # 跳转类型，1表示有条件跳转，2表示无条件跳转，3表示顺序执行，4表示终止执行
+        self.jumpType = 3  # 跳转类型，1表示有条件跳转，2表示无条件跳转，3表示顺序执行，4表示终止执行，5表示跨合约调用跳转
         self.isCircle = False  # 是否形成了循环
         self.isCircleStart = False  # 是否是循环的起点
         self.moneyCall = False  # 是否调用了合约中的send或transfer方法
 
-    def info(self):
+        # myTool:关于call跨合约调用相关
+        self.callCrossContract = False
+
+    # myTool:输出基本块信息
+    def infoPrint(self):
         print(self.startBlockPos)
         print(self.endBlockPos)
         print(self.instrList)

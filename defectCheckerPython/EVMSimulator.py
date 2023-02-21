@@ -10,6 +10,15 @@ import Utils
 from BasicBlock import BasicBlock
 
 
+def printStack(instr, current_PC, evm_stack):
+    # 将堆栈中的元素用空格隔开
+    res = " ".join(evm_stack)
+    if len(res) == 0:
+        res = "NULL"
+    # 打印指令、当前PC和堆栈
+    return f"{instr} ==> {current_PC} ==> {res}"
+
+
 class EVMSimulator:
     LOOP_LIMITED = 3  # 边访问限制的次数，即最多访问三次
 
@@ -76,16 +85,12 @@ class EVMSimulator:
             if self.flagVisEdge(block.startBlockPos, jumpPos):
                 self.dfs_exe_block(self.pos2BlockMap.get(jumpPos), block.evm_stack)
 
+        # myTool: 增加块终止和跨合约跳转
         elif block.jumpType == BasicBlock.TERMINAL:  # 块终止
             pass
 
-    def printStack(self, instr, current_PC, evm_stack):
-        # 将堆栈中的元素用空格隔开
-        res = " ".join(evm_stack)
-        if len(res) == 0:
-            res = "NULL"
-        # 打印指令、当前PC和堆栈
-        return f"{instr} ==> {current_PC} ==> {res}"
+        elif block.jumpType == BasicBlock.CROSS:
+            pass
 
     def exe_instr(self, currentBlock, instr_pair, evm_stack):
         # 获取当前块的ID，指令和指令位置
@@ -149,6 +154,28 @@ class EVMSimulator:
             else:
                 legalInstr = False
 
+        elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
+            if len(evm_stack) >= 7:
+                outgas = evm_stack.pop()
+                recipient = evm_stack.pop()
+                transfer_amount = evm_stack.pop()
+                start_data_input = evm_stack.pop()
+                size_data_input = evm_stack.pop()
+                start_data_output = evm_stack.pop()
+                size_data_ouput = evm_stack.pop()
+                result = "CALL_" + str(current_PC)
+                evm_stack.append(result)
+                currentBlock.moneyCall = True
+                if Utils.getType(transfer_amount) == Utils.DIGITAL:
+                    amount = int(transfer_amount.split("_")[0])
+                    if amount == 0:
+                        currentBlock.moneyCall = False
+                legalJump = False
+                print(recipient)
+
+                # todo:完成跨合约调用跳转
+            else:
+                legalInstr = False
         elif instr == "STOP":
             # STOP 指令，不做任何操作
             pass
@@ -707,24 +734,24 @@ class EVMSimulator:
             else:
                 legalInstr = False
 
-        elif instr == "CALL":
-            if len(evm_stack) >= 7:
-                outgas = evm_stack.pop()
-                recipient = evm_stack.pop()
-                transfer_amount = evm_stack.pop()
-                start_data_input = evm_stack.pop()
-                size_data_input = evm_stack.pop()
-                start_data_output = evm_stack.pop()
-                size_data_ouput = evm_stack.pop()
-                result = "CALL_" + str(current_PC)
-                evm_stack.append(result)
-                currentBlock.moneyCall = True
-                if Utils.getType(transfer_amount) == Utils.DIGITAL:
-                    amount = int(transfer_amount.split("_")[0])
-                    if amount == 0:
-                        currentBlock.moneyCall = False
-            else:
-                legalInstr = False
+        # elif instr == "CALL":
+        #     if len(evm_stack) >= 7:
+        #         outgas = evm_stack.pop()
+        #         recipient = evm_stack.pop()
+        #         transfer_amount = evm_stack.pop()
+        #         start_data_input = evm_stack.pop()
+        #         size_data_input = evm_stack.pop()
+        #         start_data_output = evm_stack.pop()
+        #         size_data_ouput = evm_stack.pop()
+        #         result = "CALL_" + str(current_PC)
+        #         evm_stack.append(result)
+        #         currentBlock.moneyCall = True
+        #         if Utils.getType(transfer_amount) == Utils.DIGITAL:
+        #             amount = int(transfer_amount.split("_")[0])
+        #             if amount == 0:
+        #                 currentBlock.moneyCall = False
+        #     else:
+        #         legalInstr = False
 
         elif instr == "CALLCODE":
             if len(evm_stack) >= 7:
@@ -776,4 +803,4 @@ class EVMSimulator:
         if not legalInstr:
             print("Error with instr: " + instr + " - " + str(current_PC))
 
-        self.stackEvents.append(self.printStack(instr, current_PC, evm_stack))
+        self.stackEvents.append(printStack(instr, current_PC, evm_stack))

@@ -46,13 +46,13 @@ class BinaryAnalyzer:
         if self.init(bytecode):
             # 获取基本块
             self.getBasicBlock()
-            # 添加 fall edges
+            # 添加顺序执行edges
             self.addFallEdges()
             # 构建 CFG（控制流图）
             self.buildCFG()
             # 检测代码块的特征
             self.detectBlockFeatures()
-            # 绘制cfg图
+            # myTool:绘制cfg图
             self.drawCFG()
 
     # 初始化函数
@@ -110,6 +110,10 @@ class BinaryAnalyzer:
             elif instr == 'JUMP':
                 start = True
                 block.jumpType = BasicBlock.UNCONDITIONAL
+            # myTool:添加了关于跨合约的部分
+            elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
+                start = True
+                block.jumpType = BasicBlock.CROSS
             # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
             if instr in {'STOP', 'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
                 start = True
@@ -128,7 +132,8 @@ class BinaryAnalyzer:
         for i in range(len(self.startPosList) - 1):
             startPos = self.startPosList[i]  # 获取当前基本块的起始位置
             block = self.pos2BlockMap[startPos]  # 根据起始位置获取基本块
-            if block.jumpType in {BasicBlock.FALL, BasicBlock.CONDITIONAL}:  # 如果基本块的跳转类型为“落地”或“有条件跳转”
+            if block.jumpType in {BasicBlock.FALL, BasicBlock.CONDITIONAL,
+                                  BasicBlock.CROSS}:  # myTool:添加了CROSS，因为除了有跳转还有顺序执行
                 block.fallPos = self.startPosList[i + 1]  # 在当前基本块上设置“落地点”（即下一个基本块的起始位置）
 
     def buildCFG(self):
@@ -232,7 +237,7 @@ class BinaryAnalyzer:
                 self.flagLoop(currentPath, self.allCirclePath2StartPos[path])
 
         elif block.jumpType == BasicBlock.FALL:
-            # 处理fall-through
+            # 处理顺序执行
             jumpPos = block.fallPos
             path = f"{block.startBlockPos}_{jumpPos}"
             self.totalEdge.add(path)
@@ -242,6 +247,14 @@ class BinaryAnalyzer:
                 newPath = currentPath.copy()
                 newPath.append(jumpPos)
                 self.findCallPathAndLoops(newPath, self.pos2BlockMap[jumpPos], visited)
+
+        elif block.jumpType == BasicBlock.TERMINAL:
+            # 处理终止执行
+            pass
+
+        elif block.jumpType == BasicBlock.CROSS:
+            # 处理跨合约
+            pass
 
     def detectBlockFeatures(self):
         block = self.pos2BlockMap.get(0)
@@ -285,6 +298,7 @@ class BinaryAnalyzer:
         self.numInster = len(self.disasm)
         # print("Start Detecting code smells")  # 开始检测代码异味
 
+    # myTool:绘制CFG图
     def drawCFG(self):
         graph = Digraph("CFG", 'comment', None, None, 'png', None, "UTF-8",
                         {'rankdir': 'TB'},
@@ -294,7 +308,7 @@ class BinaryAnalyzer:
                         {'color': '#999999', 'fontcolor': '#888888', 'fontsize': '10', 'fontname': 'FangSong'}, None,
                         False)
         for key, value in self.pos2BlockMap.items():
-            value.info()
+            value.infoPrint()
             graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
                 graph.edge(str(value.startBlockPos), str(value.fallPos))
