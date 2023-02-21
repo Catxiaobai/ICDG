@@ -171,13 +171,12 @@ class EVMSimulator:
                     amount = int(transfer_amount.split("_")[0])
                     if amount == 0:
                         currentBlock.moneyCall = False
-                else:
-                    # todo：不是转账，跨合约调用，进行分析连接
-                    # legalJump = False
-                    print('----------------CALL剩下的跨合约跳转时的栈信息', evm_stack)
-                    evm_stack.pop()
-                    aim = evm_stack.pop()
-                    print('目标函数跳转位置', aim)
+                        # todo：不是转账，跨合约调用，进行分析连接
+                        # legalJump = False
+                        print('----------------CALL剩下的跨合约跳转时的栈信息', evm_stack)
+                        evm_stack.pop()
+                        aim = evm_stack.pop()
+                        print('目标函数跳转位置', aim)
 
                 result = instr + "_" + str(current_PC)
                 evm_stack.append(result)
