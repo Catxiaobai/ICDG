@@ -99,6 +99,7 @@ def parserFromSourceCodeFileCross(filePath, mainContracts):
 
             # # 如果该合约不是我们需要分析的主要合约，则继续遍历
             if mainContracts not in address:
+                print(bytecode)
                 continue
 
             # print(address)

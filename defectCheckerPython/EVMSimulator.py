@@ -137,7 +137,7 @@ class EVMSimulator:
                 if Utils.getType(address) == Utils.DIGITAL:
                     # 解析跳转位置
                     jumpPos = int(address.split("_")[0])
-                    print(jumpPos)
+                    # print(jumpPos)
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = -1
@@ -157,6 +157,7 @@ class EVMSimulator:
                 legalInstr = False
 
         elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
+            print('----------------CALL的跨合约跳转时的栈信息', evm_stack)
             if len(evm_stack) >= 7:
                 outgas = evm_stack.pop()
                 recipient = evm_stack.pop()
