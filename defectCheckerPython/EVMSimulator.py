@@ -166,17 +166,21 @@ class EVMSimulator:
                 size_data_input = evm_stack.pop()
                 start_data_output = evm_stack.pop()
                 size_data_ouput = evm_stack.pop()
-                result = "CALL_" + str(current_PC)
-                evm_stack.append(result)
                 currentBlock.moneyCall = True
                 if Utils.getType(transfer_amount) == Utils.DIGITAL:
                     amount = int(transfer_amount.split("_")[0])
                     if amount == 0:
                         currentBlock.moneyCall = False
-                legalJump = False
-                print('----------------CALL的跨合约跳转', recipient)
-                print('----------------CALL剩下的跨合约跳转时的栈信息', evm_stack)
-                # todo:完成跨合约调用跳转
+                else:
+                    # todo：不是转账，跨合约调用，进行分析连接
+                    # legalJump = False
+                    print('----------------CALL剩下的跨合约跳转时的栈信息', evm_stack)
+                    evm_stack.pop()
+                    aim = evm_stack.pop()
+                    print('目标函数跳转位置', aim)
+
+                result = instr + "_" + str(current_PC)
+                evm_stack.append(result)
             else:
                 legalInstr = False
         elif instr == "STOP":
@@ -756,14 +760,14 @@ class EVMSimulator:
         #     else:
         #         legalInstr = False
 
-        elif instr == "CALLCODE":
-            if len(evm_stack) >= 7:
-                for i in range(7):
-                    evm_stack.pop()
-                result = "CALLCODE_" + str(current_PC)
-                evm_stack.append(result)
-            else:
-                legalInstr = False
+        # elif instr == "CALLCODE":
+        #     if len(evm_stack) >= 7:
+        #         for i in range(7):
+        #             evm_stack.pop()
+        #         result = "CALLCODE_" + str(current_PC)
+        #         evm_stack.append(result)
+        #     else:
+        #         legalInstr = False
 
         elif instr == "RETURN" or instr == "REVERT":
             if len(evm_stack) >= 2:
@@ -772,23 +776,23 @@ class EVMSimulator:
             else:
                 legalInstr = False
 
-        elif instr == "DELEGATECALL":
-            if len(evm_stack) >= 6:
-                for i in range(6):
-                    evm_stack.pop()
-                result = "DELEGATECALL_" + str(current_PC)
-                evm_stack.append(result)
-            else:
-                legalInstr = False
+        # elif instr == "DELEGATECALL":
+        #     if len(evm_stack) >= 6:
+        #         for i in range(6):
+        #             evm_stack.pop()
+        #         result = "DELEGATECALL_" + str(current_PC)
+        #         evm_stack.append(result)
+        #     else:
+        #         legalInstr = False
 
-        elif instr == "STATICCALL":
-            if len(evm_stack) >= 6:
-                for i in range(6):
-                    evm_stack.pop()
-                result = "STATICCALL_" + str(current_PC)
-                evm_stack.append(result)
-            else:
-                legalInstr = False
+        # elif instr == "STATICCALL":
+        #     if len(evm_stack) >= 6:
+        #         for i in range(6):
+        #             evm_stack.pop()
+        #         result = "STATICCALL_" + str(current_PC)
+        #         evm_stack.append(result)
+        #     else:
+        #         legalInstr = False
 
         elif instr == "SELFDESTRUCT" or instr == "REVERT":
             if len(evm_stack) >= 1:
