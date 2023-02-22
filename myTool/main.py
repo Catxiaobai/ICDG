@@ -10,7 +10,7 @@ import re
 import subprocess
 import time
 
-from myTool.BinaryAnalyzer import BinaryAnalyzer
+from BinaryAnalyzer import BinaryAnalyzer
 
 
 def parserFromAimBytecode(bytecode):

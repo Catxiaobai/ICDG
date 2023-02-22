@@ -6,8 +6,8 @@
 @Author : mengjie-1998@qq.com
 @Remark: a brief description
 """
-from myTool import utils
-from myTool.BasicBlock import BasicBlock
+import utils
+from BasicBlock import BasicBlock
 
 
 class BinaryAnalyzer:
