@@ -24,6 +24,7 @@ def parserFromAimBytecode(bytecode):
     if 'f30060806040' in bytecode:
         bytecode = bytecode[bytecode.index('f30060806040') + 4:]
 
+    return bytecode
     # 分析二进制代码
     binaryAnalyzer = BinaryAnalyzer()
     binaryAnalyzer.getAllDisasmCode(bytecode)
@@ -53,22 +54,19 @@ def parserFromSourceCodeFiles(file, aimContract):
 
     tmp = binary.split("\n")
 
+    binaryAnalyzer = BinaryAnalyzer()
     # 遍历 solc 输出的二进制代码字符串列表
     for i in range(len(tmp) - 1):
         # 如果当前字符串是 "Binary"，则该字符串的上一行是合约地址，下一行是合约二进制代码
         if tmp[i].startswith('Binary'):
             name = tmp[i - 1].replace('=', '').replace(' ', '').replace('\n', '')  # 获取合约名称
             bytecode = tmp[i + 1]  # 获取该合约二进制代码
-
-            # 如果该合约不是我们需要分析的主要合约，则继续遍历
-            if aimContract not in name:
-                # todo:不是目标合约，即为被调用合约，需要其部分CFG图加入主合约，输出pos2Map
-
-                pass
-
-            else:
-                # todo:目标合约，对该合约进行详细分析
-                parserFromAimBytecode(bytecode)
+            bytecode = parserFromAimBytecode(bytecode)
+            pos = binaryAnalyzer.getDisasmCode(bytecode) - 2
+            # 如果该合约是我们需要分析的主要合约，则记录结束节点位置
+            if aimContract in name:
+                binaryAnalyzer.aimContractEndPos = pos
+    binaryAnalyzer.getDisasm()
 
 
 def main():

@@ -35,17 +35,25 @@ class BinaryAnalyzer:
 
         # 目标函数的结束位置
         self.aimContractEndPos = -1
-
+        self.aimDisasmCode = None
         # self.getBasicBlock(bytecode)
 
-    def getAllDisasmCode(self, bytecode):
-        self.disasmCode = utils.getDisasmCode(bytecode)
+    def getDisasmCode(self, bytecode):
+        disasmCode, pos = utils.getDisasmCode(bytecode)
+        self.disasmCode += disasmCode
+        return pos
+
+    def getAimDisasmCode(self, bytecode):
+        aimDisasmCode, pos = utils.getDisasmCode(bytecode)
+        self.aimDisasmCode += aimDisasmCode
+        return pos
+
+    def getDisasm(self):
+        self.disasm = utils.disasmParser(self.aimDisasmCode, 0)
+        self.disasm += utils.disasmParser(self.disasmCode, self.aimContractEndPos)
         print(self.disasm)
 
     def getBasicBlock(self):
-
-        self.disasm = utils.disasmParser(self.disasmCode)
-
         block = BasicBlock()
         # 定义一个布尔值start用来表示块的起始位置，lastPos用来存储上一个位置
         start = True

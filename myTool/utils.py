@@ -64,7 +64,7 @@ def getDisasmCode(binary):
     # 返回解析结果
     if disasmCode is None or len(disasmCode) < 1 or 'STOP' not in disasmCode:
         return print('Disasm Failed')
-    return disasmCode
+    return disasmCode, len(disasmCode.split('\n'))
 
 
 def replaceInstr(line):
@@ -79,13 +79,11 @@ def replaceInstr(line):
     return line
 
 
-def disasmParser(disasmCode):
+def disasmParser(disasmCode, startId):
     disasm = []
     lines = disasmCode.split("\n")
-    start = False
     for line in lines:
-        if not start:
-            start = True
+        if ':' not in line:
             continue
         line = replaceInstr(line)
         tmp = line.split(": ")
@@ -93,12 +91,12 @@ def disasmParser(disasmCode):
         # lineID = Hex2Int(tmp[0])
         if tmp[0] == '':
             continue
-        lineID = int(tmp[0])
+        lineId = int(tmp[0]) + int(startId)
         tmp2 = tmp[1].split(" ")
-        pushID = ""
+        pushId = ""
         if len(tmp2) > 1:
-            pushID = tmp2[1].replace("0x", "")
-        instr = (tmp2[0], pushID)
-        lineInstr = (lineID, instr)
+            pushId = tmp2[1].replace("0x", "")
+        instr = (tmp2[0], pushId)
+        lineInstr = (lineId, instr)
         disasm.append(lineInstr)
     return disasm
