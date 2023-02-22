@@ -112,7 +112,7 @@ class BinaryAnalyzer:
                 if block.startBlockPos >= self.aimContractEndPos:
                     block.isCalledContract = True
                     block.callJumpPos = self.aimContractEndPos
-        # print(self.pos2BlockMap.items())
+        print(self.pos2BlockMap)
 
     def addFallEdges(self) -> None:
         # 添加从当前基本块到“落地点”（即下一个基本块）的边
@@ -316,7 +316,7 @@ class BinaryAnalyzer:
         # 构建 CFG（控制流图）
         self.buildCFG(0)
         if self.disasmCode != '':
-            self.buildCFG(self.aimContractEndPos)
+            self.buildCFG(self.aimContractEndPos - 1)
         # 检测代码块的特征
         self.detectBlockFeatures()
         # myTool:绘制cfg图
