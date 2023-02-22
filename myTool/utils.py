@@ -64,7 +64,8 @@ def getDisasmCode(binary):
     # 返回解析结果
     if disasmCode is None or len(disasmCode) < 1 or 'STOP' not in disasmCode:
         return print('Disasm Failed')
-    return disasmCode, len(disasmCode.split('\n'))
+    # print(int(disasmCode.split('\n')[-2].split(':')[0]))
+    return disasmCode, int(disasmCode.split('\n')[-2].split(':')[0])
 
 
 def replaceInstr(line):

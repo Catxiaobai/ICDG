@@ -61,7 +61,7 @@ def parserFromSourceCodeFiles(file, aimContract):
             bytecode = parserFromAimBytecode(bytecode)
             # 如果该合约是我们需要分析的主要合约，则记录结束节点位置
             if aimContract in name:
-                pos = binaryAnalyzer.getAimDisasmCode(bytecode) - 2
+                pos = binaryAnalyzer.getAimDisasmCode(bytecode) + 1
                 binaryAnalyzer.aimContractEndPos = pos
             else:
                 binaryAnalyzer.getDisasmCode(bytecode)

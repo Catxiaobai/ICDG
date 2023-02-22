@@ -36,12 +36,10 @@ class BinaryAnalyzer:
         # 目标函数的结束位置
         self.aimContractEndPos = -1
         self.aimDisasmCode = ''
-        # self.getBasicBlock(bytecode)
 
     def getDisasmCode(self, bytecode):
         disasmCode, pos = utils.getDisasmCode(bytecode)
         self.disasmCode += disasmCode
-        return pos
 
     def getAimDisasmCode(self, bytecode):
         aimDisasmCode, pos = utils.getDisasmCode(bytecode)
