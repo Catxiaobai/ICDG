@@ -31,7 +31,7 @@ class BasicBlock:
         self.endBlockPos = -1  # 当前基本块在程序中的结束位置
         self.instrList = []  # 存储当前基本块中的指令
         self.evmStack = []  # 存储当前基本块中的EVM栈
-        self.instrString = ""  # 当前基本块的指令字符串
+        self.instrString = ''  # 当前基本块的指令字符串
 
         # 下面是关于跳转的一些变量
         self.fallPos = -1  # 当前基本块执行完后跳转的位置

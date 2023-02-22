@@ -101,6 +101,7 @@ class BinaryAnalyzer:
             # 将指令对添加到块的指令列表中，并将指令添加到块的指令字符串中
             block.instrList.append(instr_pair)
             block.instrString.join(f'{instr} ')
+            print('instrString', block.instrString)
             # 将lastPos设置为当前位置，如果当前位置为最后一个位置，则将当前块的结束位置设置为lastPos，并将其添加到块映射表中
             lastPos = pos
             if i == len(self.disasm) - 1:
