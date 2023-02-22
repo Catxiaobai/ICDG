@@ -12,6 +12,15 @@ from BasicBlock import BasicBlock
 import utils
 
 
+def printStack(instr, current_PC, evm_stack):
+    # 将堆栈中的元素用空格隔开
+    res = " ".join(evm_stack)
+    if len(res) == 0:
+        res = "NULL"
+    # 打印指令、当前PC和堆栈
+    return f"{instr} ==> {current_PC} ==> {res}"
+
+
 class EvmSimulator:
     LOOP_LIMITED = 3  # 边访问限制的次数，即最多访问三次
 
