@@ -25,9 +25,6 @@ def parserFromAimBytecode(bytecode):
         bytecode = bytecode[bytecode.index('f30060806040') + 4:]
 
     return bytecode
-    # 分析二进制代码
-    binaryAnalyzer = BinaryAnalyzer()
-    binaryAnalyzer.getAllDisasmCode(bytecode)
 
 
 def parserFromBytecode(bytecode):
@@ -68,7 +65,11 @@ def parserFromSourceCodeFiles(file, aimContract):
                 binaryAnalyzer.aimContractEndPos = pos
             else:
                 binaryAnalyzer.getDisasmCode(bytecode)
+
+    print(binaryAnalyzer.aimDisasmCode)
     print(binaryAnalyzer.aimContractEndPos)
+    print(binaryAnalyzer.disasmCode)
+
     binaryAnalyzer.getDisasm()
 
 
