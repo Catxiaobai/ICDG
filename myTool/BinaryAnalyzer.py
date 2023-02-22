@@ -98,7 +98,7 @@ class BinaryAnalyzer:
                 start = True
                 block.jumpType = BasicBlock.CROSS
             # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
-            if instr in {'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
+            elif instr in {'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
                 start = True
                 # block.jumpType = BasicBlock.TERMINAL
             # 将指令对添加到块的指令列表中，并将指令添加到块的指令字符串中

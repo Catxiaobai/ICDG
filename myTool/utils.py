@@ -82,8 +82,10 @@ def replaceInstr(line):
 
 def disasmParser(disasmCode, startId):
     disasm = []
+    if int(startId) > 0:
+        disasm.append((-1, 'JUMPDEST'))
     lines = disasmCode.split("\n")
-    for line in lines:
+    for i, line in enumerate(lines):
         if ':' not in line:
             continue
         line = replaceInstr(line)
