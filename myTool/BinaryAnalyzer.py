@@ -73,6 +73,9 @@ class BinaryAnalyzer:
                 if i != 0:
                     block.endBlockPos = lastPos
                     self.pos2BlockMap[block.startBlockPos] = block
+                    if block.startBlockPos >= self.aimContractEndPos:
+                        block.isCalledContract = True
+                        block.callJumpPos = self.aimContractEndPos
                 # 初始化一个新的块并设置其起始位置
                 block = BasicBlock()
                 block.startBlockPos = pos
@@ -103,7 +106,10 @@ class BinaryAnalyzer:
             if i == len(self.disasm) - 1:
                 block.endBlockPos = lastPos
                 self.pos2BlockMap[block.startBlockPos] = block
-        print(self.pos2BlockMap)
+                if block.startBlockPos >= self.aimContractEndPos:
+                    block.isCalledContract = True
+                    block.callJumpPos = self.aimContractEndPos
+        print(self.pos2BlockMap.items())
 
     def addFallEdges(self) -> None:
         # 添加从当前基本块到“落地点”（即下一个基本块）的边

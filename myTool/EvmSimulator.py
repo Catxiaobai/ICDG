@@ -695,6 +695,7 @@ class EvmSimulator:
                 pushedValue = "0"
             if len(pushedValue) <= 10:
                 pushvalue = int(pushedValue, 16)
+                print('pushvalue:', pushvalue)
                 evmStack.append(str(pushvalue) + "_" + str(current_PC))
             else:
                 evmStack.append(instr + "_" + str(current_PC))

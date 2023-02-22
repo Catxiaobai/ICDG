@@ -46,6 +46,7 @@ class BasicBlock:
         # myTool:关于call跨合约调用相关
         self.function = "NULL"  # 标记该基本块属于哪个函数
         self.callJumpPos = -1  # 跨合约跳转
+        self.isCalledContract = False  # 是否为被调用合约
 
     # 输出基本块信息
     def infoPrint(self):
