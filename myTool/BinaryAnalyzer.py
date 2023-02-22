@@ -149,7 +149,6 @@ class BinaryAnalyzer:
         self.allCirclePath.append(circlePath)  # 将循环路径添加到所有循环路径中
 
     def findCallPathAndLoops(self, currentPath, block, visited):
-        # print(currentPath)
         # 从当前代码块出发，记录已访问过的起始位置
         self.visitBlock.add(block.startBlockPos)
         # 如果代码块包含CALL指令，则将当前路径添加到self.allCallPath列表中
@@ -270,9 +269,9 @@ class BinaryAnalyzer:
         # 计算代码覆盖率
         self.codeCoverage = float(visitedInstr) / totalInstr
         # 计算圈复杂度
-        self.cyclomatic_complexity = len(self.totalEdge) - len(self.visitBlock) + 2
+        self.cyclomaticComplexity = len(self.totalEdge) - len(self.visitBlock) + 2
         # 统计指令数量
-        self.numInster = len(self.disasm)
+        self.numInstrs = len(self.disasm)
         # print("Start Detecting code smells")  # 开始检测代码异味
         # print('函数入口', self.publicFunctionStartList)
 

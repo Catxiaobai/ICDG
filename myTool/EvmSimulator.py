@@ -12,9 +12,9 @@ from BasicBlock import BasicBlock
 import utils
 
 
-def printStack(instr, current_PC, evm_stack):
+def printStack(instr, current_PC, evmStack):
     # 将堆栈中的元素用空格隔开
-    res = " ".join(evm_stack)
+    res = " ".join(evmStack)
     if len(res) == 0:
         res = "NULL"
     # 打印指令、当前PC和堆栈
@@ -39,10 +39,10 @@ class EvmSimulator:
 
     def dfsExeBlock(self, block, fatherEvmStack):
         # 用父堆栈复制新堆栈
-        block.evm_stack = fatherEvmStack.copy()
+        block.evmStack = fatherEvmStack.copy()
         # 遍历区块中的每个指令，执行指令
         for instr in block.instrList:
-            self.exe_instr(block, instr, block.evmStack)
+            self.exeInstr(block, instr, block.evmStack)
 
         # 处理不同类型的跳转
         if block.jumpType == BasicBlock.CONDITIONAL:  # 条件跳转
@@ -94,7 +94,7 @@ class EvmSimulator:
         self.edgeVisTimes[edgeVis] = visTimes  # 更新边的访问次数记录
         return True  # 返回True表示可以访问该边
 
-    def exe_instr(self, currentBlock, instr_pair, evm_stack):
+    def exeInstr(self, currentBlock, instr_pair, evmStack):
         # 获取当前块的ID，指令和指令位置
         currentBlockID = currentBlock.startBlockPos
         instr = instr_pair[1][0]
@@ -103,9 +103,9 @@ class EvmSimulator:
         legalInstr = True
         # 每条指令以 "指令名_指令位置" 的格式压入EVM栈中
         if instr == "JUMP":
-            if len(evm_stack) >= 1:
+            if len(evmStack) >= 1:
                 # 获取跳转位置
-                address = evm_stack.pop()
+                address = evmStack.pop()
                 legalJump = False
                 # 判断跳转位置是否合法
                 if utils.getType(address) == utils.DIGITAL:
@@ -129,10 +129,10 @@ class EvmSimulator:
 
         elif instr == "JUMPI":
             # 判断栈内是否有两个元素
-            if len(evm_stack) >= 2:
+            if len(evmStack) >= 2:
                 # 从栈顶依次弹出两个元素
-                address = evm_stack.pop()
-                condition = evm_stack.pop()
+                address = evmStack.pop()
+                condition = evmStack.pop()
                 # print('----------------JUMPI的跳转:', address, condition)
                 legalJump = False
                 # 判断地址是否是数字
@@ -160,15 +160,15 @@ class EvmSimulator:
                 legalInstr = False
 
         elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
-            print('----------------CALL的跨合约跳转时的栈信息', evm_stack)
-            if len(evm_stack) >= 7:
-                outgas = evm_stack.pop()
-                recipient = evm_stack.pop()
-                transfer_amount = evm_stack.pop()
-                start_data_input = evm_stack.pop()
-                size_data_input = evm_stack.pop()
-                start_data_output = evm_stack.pop()
-                size_data_ouput = evm_stack.pop()
+            print('----------------CALL的跨合约跳转时的栈信息', evmStack)
+            if len(evmStack) >= 7:
+                outgas = evmStack.pop()
+                recipient = evmStack.pop()
+                transfer_amount = evmStack.pop()
+                start_data_input = evmStack.pop()
+                size_data_input = evmStack.pop()
+                start_data_output = evmStack.pop()
+                size_data_ouput = evmStack.pop()
                 currentBlock.moneyCall = True
                 if utils.getType(transfer_amount) == utils.DIGITAL:
                     amount = int(transfer_amount.split("_")[0])
@@ -176,13 +176,13 @@ class EvmSimulator:
                         currentBlock.moneyCall = False
                         # todo：不是转账，跨合约调用，进行分析连接
                         # legalJump = False
-                        print('----------------CALL剩下的跨合约跳转时的栈信息', evm_stack)
-                        evm_stack.pop()
-                        aim = evm_stack.pop()
+                        print('----------------CALL剩下的跨合约跳转时的栈信息', evmStack)
+                        evmStack.pop()
+                        aim = evmStack.pop()
                         print('目标函数跳转位置', aim)
 
                 result = instr + "_" + str(current_PC)
-                evm_stack.append(result)
+                evmStack.append(result)
             else:
                 legalInstr = False
         elif instr == "STOP":
@@ -190,74 +190,74 @@ class EvmSimulator:
             pass
 
         elif instr == "ADD":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     # 如果弹出的两个操作数都是数字类型，则将其相加，并将结果重新压入栈中
                     res = int(first.split("_")[0]) + int(second.split("_")[0])
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     # 否则，将操作转为字符串，作为新元素压入栈中
                     res = "ADD_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 # 如果栈中元素不足，则标记为非法指令
                 legalInstr = False
 
         elif instr == "MUL":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     # 如果弹出的两个操作数都是数字类型，则将其相乘，并将结果重新压入栈中
                     res = int(first.split("_")[0]) * int(second.split("_")[0])
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     # 否则，将操作转为字符串，作为新元素压入栈中
                     res = "MUL_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 # 如果栈中元素不足，则标记为非法指令
                 legalInstr = False
 
         elif instr == "SUB":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()  # 取出栈顶的第一个操作数
-                second = evm_stack.pop()  # 取出栈顶的第二个操作数
+            if len(evmStack) >= 2:
+                first = evmStack.pop()  # 取出栈顶的第一个操作数
+                second = evmStack.pop()  # 取出栈顶的第二个操作数
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     # 如果两个操作数都是数字，则执行减法运算
                     res = int(first.split("_")[0]) - int(second.split("_")[0])
-                    evm_stack.append(str(res) + "_" + str(current_PC))  # 将运算结果入栈
+                    evmStack.append(str(res) + "_" + str(current_PC))  # 将运算结果入栈
                 else:
                     # 如果两个操作数不都是数字，则将操作表达式入栈
                     res = "SUB_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "DIV":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     # 如果两个操作数都是数字，则执行除法运算
                     if int(second.split("_")[0]) == 0:  # 判断除数是否为0
                         res = 0
                     else:
                         res = int(int(first.split("_")[0]) / int(second.split("_")[0]))
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     # 如果两个操作数不都是数字，则将操作表达式入栈
                     res = "DIV_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "SDIV":
-            if len(evm_stack) >= 2:  # 检查栈中是否有足够的元素
-                first = evm_stack.pop()  # 弹出栈顶元素
-                second = evm_stack.pop()  # 弹出次顶元素
+            if len(evmStack) >= 2:  # 检查栈中是否有足够的元素
+                first = evmStack.pop()  # 弹出栈顶元素
+                second = evmStack.pop()  # 弹出次顶元素
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:  # 检查元素是否为数字
                     if int(second.split("_")[0]) == 0:  # 避免除数为0
                         res = 0
@@ -266,33 +266,33 @@ class EvmSimulator:
                         if int(int(first.split("_")[0]) / int(second.split("_")[0])) < 0:  # 如果结果是负数，标记负号并对其进行取绝对值操作
                             tmp = -1
                         res = tmp * abs(int(int(first.split("_")[0]) / int(second.split("_")[0])))  # 进行有符号整数除法
-                    evm_stack.append(str(res) + "_" + str(current_PC))  # 将结果压入栈中
+                    evmStack.append(str(res) + "_" + str(current_PC))  # 将结果压入栈中
                 else:  # 如果元素不是数字，则创建一个新的字符串来表示操作
                     res = "SDIV_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False  # 如果没有足够的元素，则该指令非法
 
         elif instr == "MOD":
-            if len(evm_stack) >= 2:  # 检查栈中是否有足够的元素
-                first = evm_stack.pop()  # 弹出栈顶元素
-                second = evm_stack.pop()  # 弹出次顶元素
+            if len(evmStack) >= 2:  # 检查栈中是否有足够的元素
+                first = evmStack.pop()  # 弹出栈顶元素
+                second = evmStack.pop()  # 弹出次顶元素
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:  # 检查元素是否为数字
                     if int(second.split("_")[0]) == 0:  # 避免除数为0
                         res = 0
                     else:
                         res = int(first.split("_")[0]) % int(second.split("_")[0])  # 求模操作
-                    evm_stack.append(str(res) + "_" + str(current_PC))  # 将结果压入栈中
+                    evmStack.append(str(res) + "_" + str(current_PC))  # 将结果压入栈中
                 else:  # 如果元素不是数字，则创建一个新的字符串来表示操作
                     res = "MOD_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False  # 如果没有足够的元素，则该指令非法
 
         elif instr == "SMOD":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     if int(second.split("_")[0]) == 0:
                         res = 0
@@ -300,18 +300,18 @@ class EvmSimulator:
                         res = int(first.split("_")[0]) % int(second.split("_")[0])
                         if res * int(first.split("_")[0]) < 0:
                             res *= -1
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     res = "SMOD_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "ADDMOD":
-            if len(evm_stack) >= 3:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
-                third = evm_stack.pop()
+            if len(evmStack) >= 3:
+                first = evmStack.pop()
+                second = evmStack.pop()
+                third = evmStack.pop()
                 if (utils.getType(first) == utils.DIGITAL and
                         utils.getType(second) == utils.DIGITAL and
                         utils.getType(third) == utils.DIGITAL):
@@ -319,46 +319,46 @@ class EvmSimulator:
                         res = 0
                     else:
                         res = (int(first.split("_")[0]) + int(second.split("_")[0])) % int(third.split("_")[0])
-                    evm_stack.append(f"{res}_{current_PC}")
+                    evmStack.append(f"{res}_{current_PC}")
                 else:
                     res = f"ADDMOD_{current_PC}({first},{second})"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "MULMOD":
-            if len(evm_stack) >= 3:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
-                third = evm_stack.pop()
+            if len(evmStack) >= 3:
+                first = evmStack.pop()
+                second = evmStack.pop()
+                third = evmStack.pop()
                 if (utils.getType(first) == utils.DIGITAL and
                         utils.getType(second) == utils.DIGITAL and
                         utils.getType(third) == utils.DIGITAL):
                     res = (int(first.split("_")[0]) * int(second.split("_")[0])) % int(third.split("_")[0])
-                    evm_stack.append(f"{res}_{current_PC}")
+                    evmStack.append(f"{res}_{current_PC}")
                 else:
                     res = f"MULMOD_{current_PC}({first},{second})"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "EXP":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     res = int(pow(int(first.split("_")[0]), int(second.split("_")[0])))
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     res = "EXP_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "SIGNEXTEND":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     f = int(first.split("_")[0])
                     s = int(second.split("_")[0])
@@ -370,130 +370,130 @@ class EvmSimulator:
                             res = s | (int(pow(2, 256)) - (1 << tmp))
                         else:
                             res = s & ((1 << tmp) - 1)
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     res = "SIGNEXTEND_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "LT" or instr == "SLT":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     if int(first.split("_")[0]) < int(second.split("_")[0]):
-                        evm_stack.append("1_" + str(current_PC))
+                        evmStack.append("1_" + str(current_PC))
                     else:
-                        evm_stack.append("0_" + str(current_PC))
+                        evmStack.append("0_" + str(current_PC))
                 else:
                     res = "LT_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "GT" or instr == "SGT":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     if int(first.split("_")[0]) > int(second.split("_")[0]):
-                        evm_stack.append("1_" + str(current_PC))
+                        evmStack.append("1_" + str(current_PC))
                     else:
-                        evm_stack.append("0_" + str(current_PC))
+                        evmStack.append("0_" + str(current_PC))
                 else:
                     res = "GT_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "EQ":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     if int(first.split("_")[0]) == int(second.split("_")[0]):
-                        evm_stack.append("1_" + str(current_PC))
+                        evmStack.append("1_" + str(current_PC))
                     else:
-                        evm_stack.append("0_" + str(current_PC))
+                        evmStack.append("0_" + str(current_PC))
                 else:
                     if first.split("_")[0] == second.split("_")[0]:
-                        evm_stack.append("1_" + str(current_PC))
+                        evmStack.append("1_" + str(current_PC))
                     else:
                         res = "EQ_" + str(current_PC) + "(" + first + "," + second + ")"
-                        evm_stack.append(res)
+                        evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "ISZERO":
-            if len(evm_stack) >= 1:
-                first = evm_stack.pop()
+            if len(evmStack) >= 1:
+                first = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL:
                     if int(first.split("_")[0]) == 0:
-                        evm_stack.append("1_" + str(current_PC))
+                        evmStack.append("1_" + str(current_PC))
                     else:
-                        evm_stack.append("0_" + str(current_PC))
+                        evmStack.append("0_" + str(current_PC))
                 else:
                     res = "ISZERO_" + str(current_PC) + "(" + first + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "AND":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     res = int(first.split("_")[0]) & int(second.split("_")[0])
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     res = "AND_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "OR":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     res = int(first.split("_")[0]) | int(second.split("_")[0])
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     res = "OR_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "XOR":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     res = int(first.split("_")[0]) ^ int(second.split("_")[0])
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     res = "XOR_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "NOT":
-            if len(evm_stack) >= 1:
-                first = evm_stack.pop()
+            if len(evmStack) >= 1:
+                first = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL:
                     res = ~int(first.split("_")[0])
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     res = "NOT_" + str(current_PC) + "(" + first + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "BYTE":
-            if len(evm_stack) >= 2:
-                first = evm_stack.pop()
-                second = evm_stack.pop()
+            if len(evmStack) >= 2:
+                first = evmStack.pop()
+                second = evmStack.pop()
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     f = int(first.split("_")[0])
                     s = int(second.split("_")[0])
@@ -503,186 +503,186 @@ class EvmSimulator:
                     else:
                         res = s & (255 << (8 * byte_idx))
                         res = res >> (8 * byte_idx)
-                    evm_stack.append(str(res) + "_" + str(current_PC))
+                    evmStack.append(str(res) + "_" + str(current_PC))
                 else:
                     res = "BYTE_" + str(current_PC) + "(" + first + "," + second + ")"
-                    evm_stack.append(res)
+                    evmStack.append(res)
             else:
                 legalInstr = False
 
         elif instr == "SHA3":
-            if len(evm_stack) >= 2:
-                top1 = evm_stack.pop()
-                top2 = evm_stack.pop()
+            if len(evmStack) >= 2:
+                top1 = evmStack.pop()
+                top2 = evmStack.pop()
                 result = "SHA3_" + str(current_PC) + "(" + top1 + "," + top2 + ")"
-                evm_stack.append(result)
+                evmStack.append(result)
             else:
                 legalInstr = False
 
         elif instr == "ADDRESS":
             result = "ADDRESS_" + str(current_PC)
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "BALANCE":
-            if len(evm_stack) >= 1:
-                top1 = evm_stack.pop()
+            if len(evmStack) >= 1:
+                top1 = evmStack.pop()
                 result = "BALANCE_" + str(current_PC) + "(" + top1 + ")"
-                evm_stack.append(result)
+                evmStack.append(result)
             else:
                 legalInstr = False
 
         elif instr == "ORIGIN":
             result = "ORIGIN_" + str(current_PC)
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "CALLER":
             result = "CALLER_" + str(current_PC)
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "CALLVALUE":
             result = "CALLVALUE_" + str(current_PC)
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "CALLDATALOAD":
-            if len(evm_stack) >= 1:
-                top1 = evm_stack.pop()
+            if len(evmStack) >= 1:
+                top1 = evmStack.pop()
                 result = f"CALLDATALOAD_{current_PC}({top1})"
-                evm_stack.append(result)
+                evmStack.append(result)
             else:
                 legalInstr = False
 
         elif instr == "CALLDATASIZE":
             result = f"CALLDATASIZE_{current_PC}"
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "CALLDATACOPY":
-            if len(evm_stack) >= 3:
-                evm_stack.pop()
-                evm_stack.pop()
-                evm_stack.pop()
+            if len(evmStack) >= 3:
+                evmStack.pop()
+                evmStack.pop()
+                evmStack.pop()
             else:
                 legalInstr = False
 
         elif instr == "CODESIZE":
             result = f"CODESIZE_{current_PC}"
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "CODECOPY":
-            if len(evm_stack) >= 3:
-                evm_stack.pop()
-                evm_stack.pop()
-                evm_stack.pop()
+            if len(evmStack) >= 3:
+                evmStack.pop()
+                evmStack.pop()
+                evmStack.pop()
             else:
                 legalInstr = False
 
         elif instr == "GASPRICE":
             result = "GASPRICE_" + str(current_PC)
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "EXTCODESIZE":
-            if len(evm_stack) >= 1:
-                top1 = evm_stack.pop()
+            if len(evmStack) >= 1:
+                top1 = evmStack.pop()
                 result = "EXTCODESIZE_" + str(current_PC) + "(" + top1 + ")"
-                evm_stack.append(result)
+                evmStack.append(result)
             else:
                 legalInstr = False
 
         elif instr == "EXTCODECOPY":
-            if len(evm_stack) >= 4:
-                evm_stack.pop()
-                evm_stack.pop()
-                evm_stack.pop()
-                evm_stack.pop()
+            if len(evmStack) >= 4:
+                evmStack.pop()
+                evmStack.pop()
+                evmStack.pop()
+                evmStack.pop()
             else:
                 legalInstr = False
 
         elif instr == "RETURNDATASIZE":
             result = "RETURNDATASIZE_" + str(current_PC)
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "RETURNDATACOPY":
-            if len(evm_stack) >= 3:
-                evm_stack.pop()
-                evm_stack.pop()
-                evm_stack.pop()
+            if len(evmStack) >= 3:
+                evmStack.pop()
+                evmStack.pop()
+                evmStack.pop()
             else:
                 legalInstr = False
 
         elif instr == "BLOCKHASH":
-            if len(evm_stack) >= 1:
-                top1 = evm_stack.pop()
+            if len(evmStack) >= 1:
+                top1 = evmStack.pop()
                 result = f"BLOCKHASH_{current_PC}({top1})"
-                evm_stack.append(result)
+                evmStack.append(result)
             else:
                 legalInstr = False
 
         elif instr == "COINBASE":
             result = f"COINBASE_{current_PC}"
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "TIMESTAMP":
             result = f"TIMESTAMP_{current_PC}"
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "NUMBER":
             result = f"NUMBER_{current_PC}"
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "DIFFICULTY":
             result = f"DIFFICULTY_{current_PC}"
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "GASLIMIT":
             result = f"GASLIMIT_{current_PC}"
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "POP":
-            if len(evm_stack) >= 1:
-                evm_stack.pop()
+            if len(evmStack) >= 1:
+                evmStack.pop()
             else:
                 legalInstr = False
 
         elif instr == "MLOAD":
-            if len(evm_stack) >= 1:
-                address = evm_stack.pop()
+            if len(evmStack) >= 1:
+                address = evmStack.pop()
                 result = "MLOAD_" + str(current_PC) + "(" + address + ")"
-                evm_stack.append(result)
+                evmStack.append(result)
             else:
                 legalInstr = False
 
         elif instr == "MSTORE" or instr == "MSTORE8":
-            if len(evm_stack) >= 2:
-                evm_stack.pop()
-                evm_stack.pop()
+            if len(evmStack) >= 2:
+                evmStack.pop()
+                evmStack.pop()
             else:
                 legalInstr = False
 
         elif instr == "SSTORE":
-            if len(evm_stack) >= 2:
-                evm_stack.pop()
-                evm_stack.pop()
+            if len(evmStack) >= 2:
+                evmStack.pop()
+                evmStack.pop()
             else:
                 legalInstr = False
 
         elif instr == "SLOAD":
-            if len(evm_stack) >= 1:
-                top1 = evm_stack.pop()
+            if len(evmStack) >= 1:
+                top1 = evmStack.pop()
                 result = "SLOAD_" + str(current_PC) + "(" + top1 + ")"
-                evm_stack.append(result)
+                evmStack.append(result)
             else:
                 legalInstr = False
 
         elif instr == "PC":
             result = "PC_" + str(current_PC)
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "MSIZE":
             result = "MSIZE_" + str(current_PC)
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "GAS":
             result = "GAS_" + str(current_PC)
-            evm_stack.append(result)
+            evmStack.append(result)
 
         elif instr == "JUMPDEST":
             pass
@@ -695,65 +695,65 @@ class EvmSimulator:
                 pushedValue = "0"
             if len(pushedValue) <= 10:
                 pushvalue = int(pushedValue, 16)
-                evm_stack.append(str(pushvalue) + "_" + str(current_PC))
+                evmStack.append(str(pushvalue) + "_" + str(current_PC))
             else:
-                evm_stack.append(instr + "_" + str(current_PC))
+                evmStack.append(instr + "_" + str(current_PC))
 
         elif instr.startswith("DUP"):
             dp = int(instr.replace("DUP", ""))
-            if len(evm_stack) >= dp:
+            if len(evmStack) >= dp:
                 tmp = []
                 for i in range(dp):
-                    tmp.append(evm_stack.pop())
+                    tmp.append(evmStack.pop())
                 dup_value = tmp[dp - 1]
                 for i in range(dp - 1, -1, -1):
-                    evm_stack.append(tmp[i])
-                evm_stack.append(str(dup_value))
+                    evmStack.append(tmp[i])
+                evmStack.append(str(dup_value))
             else:
                 legalInstr = False
 
         elif instr.startswith("SWAP"):
             sp = int(instr.replace("SWAP", ""))
-            if len(evm_stack) > sp:
+            if len(evmStack) > sp:
                 tmp = []
                 for i in range(sp + 1):
-                    tmp.append(evm_stack.pop())
-                evm_stack.append(tmp[0])
+                    tmp.append(evmStack.pop())
+                evmStack.append(tmp[0])
                 for i in range(len(tmp) - 2, 0, -1):
-                    evm_stack.append(tmp[i])
-                evm_stack.append(tmp[-1])
+                    evmStack.append(tmp[i])
+                evmStack.append(tmp[-1])
             else:
                 legalInstr = False
 
         elif instr.startswith("LOG"):
             lp = int(instr.replace("LOG", ""))
-            if len(evm_stack) >= lp + 2:
+            if len(evmStack) >= lp + 2:
                 for i in range(lp + 2):
-                    evm_stack.pop()
+                    evmStack.pop()
             else:
                 legalInstr = False
 
         elif instr == "CREATE":
-            if len(evm_stack) >= 3:
-                evm_stack.pop()
-                evm_stack.pop()
-                evm_stack.pop()
+            if len(evmStack) >= 3:
+                evmStack.pop()
+                evmStack.pop()
+                evmStack.pop()
                 result = "CREATE_" + str(current_PC)
-                evm_stack.append(result)
+                evmStack.append(result)
             else:
                 legalInstr = False
 
         # elif instr == "CALL":
-        #     if len(evm_stack) >= 7:
-        #         outgas = evm_stack.pop()
-        #         recipient = evm_stack.pop()
-        #         transfer_amount = evm_stack.pop()
-        #         start_data_input = evm_stack.pop()
-        #         size_data_input = evm_stack.pop()
-        #         start_data_output = evm_stack.pop()
-        #         size_data_ouput = evm_stack.pop()
+        #     if len(evmStack) >= 7:
+        #         outgas = evmStack.pop()
+        #         recipient = evmStack.pop()
+        #         transfer_amount = evmStack.pop()
+        #         start_data_input = evmStack.pop()
+        #         size_data_input = evmStack.pop()
+        #         start_data_output = evmStack.pop()
+        #         size_data_ouput = evmStack.pop()
         #         result = "CALL_" + str(current_PC)
-        #         evm_stack.append(result)
+        #         evmStack.append(result)
         #         currentBlock.moneyCall = True
         #         if utils.getType(transfer_amount) == utils.DIGITAL:
         #             amount = int(transfer_amount.split("_")[0])
@@ -763,42 +763,42 @@ class EvmSimulator:
         #         legalInstr = False
 
         # elif instr == "CALLCODE":
-        #     if len(evm_stack) >= 7:
+        #     if len(evmStack) >= 7:
         #         for i in range(7):
-        #             evm_stack.pop()
+        #             evmStack.pop()
         #         result = "CALLCODE_" + str(current_PC)
-        #         evm_stack.append(result)
+        #         evmStack.append(result)
         #     else:
         #         legalInstr = False
 
         elif instr == "RETURN" or instr == "REVERT":
-            if len(evm_stack) >= 2:
-                evm_stack.pop()
-                evm_stack.pop()
+            if len(evmStack) >= 2:
+                evmStack.pop()
+                evmStack.pop()
             else:
                 legalInstr = False
 
         # elif instr == "DELEGATECALL":
-        #     if len(evm_stack) >= 6:
+        #     if len(evmStack) >= 6:
         #         for i in range(6):
-        #             evm_stack.pop()
+        #             evmStack.pop()
         #         result = "DELEGATECALL_" + str(current_PC)
-        #         evm_stack.append(result)
+        #         evmStack.append(result)
         #     else:
         #         legalInstr = False
 
         # elif instr == "STATICCALL":
-        #     if len(evm_stack) >= 6:
+        #     if len(evmStack) >= 6:
         #         for i in range(6):
-        #             evm_stack.pop()
+        #             evmStack.pop()
         #         result = "STATICCALL_" + str(current_PC)
-        #         evm_stack.append(result)
+        #         evmStack.append(result)
         #     else:
         #         legalInstr = False
 
         elif instr == "SELFDESTRUCT" or instr == "REVERT":
-            if len(evm_stack) >= 1:
-                evm_stack.pop()
+            if len(evmStack) >= 1:
+                evmStack.pop()
                 return
             else:
                 legalInstr = False
@@ -812,4 +812,4 @@ class EvmSimulator:
         if not legalInstr:
             print("Error with instr: " + instr + " - " + str(current_PC))
 
-        self.stackEvents.append(printStack(instr, current_PC, evm_stack))
+        self.stackEvents.append(printStack(instr, current_PC, evmStack))
