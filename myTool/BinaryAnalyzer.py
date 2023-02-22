@@ -18,7 +18,7 @@ class BinaryAnalyzer:
         self.allInstrs = set()  # 所有的操作指令集合
         self.startPosList = []  # 代码块的开始位置列表
         self.disasm = None  # 反汇编器对象
-        self.disasmCode = None  # 反汇编后的代码字符串
+        self.disasmCode = ''  # 反汇编后的代码字符串
         self.versionGap = False  # 是否存在版本间的不兼容
         self.legalContract = True  # 是否为合法的合约代码
         self.codeCoverage = 0  # 代码覆盖率
@@ -35,7 +35,7 @@ class BinaryAnalyzer:
 
         # 目标函数的结束位置
         self.aimContractEndPos = -1
-        self.aimDisasmCode = None
+        self.aimDisasmCode = ''
         # self.getBasicBlock(bytecode)
 
     def getDisasmCode(self, bytecode):
@@ -45,7 +45,7 @@ class BinaryAnalyzer:
 
     def getAimDisasmCode(self, bytecode):
         aimDisasmCode, pos = utils.getDisasmCode(bytecode)
-        self.aimDisasmCode += aimDisasmCode
+        self.aimDisasmCode = aimDisasmCode
         return pos
 
     def getDisasm(self):

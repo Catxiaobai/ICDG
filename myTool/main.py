@@ -62,10 +62,13 @@ def parserFromSourceCodeFiles(file, aimContract):
             name = tmp[i - 1].replace('=', '').replace(' ', '').replace('\n', '')  # 获取合约名称
             bytecode = tmp[i + 1]  # 获取该合约二进制代码
             bytecode = parserFromAimBytecode(bytecode)
-            pos = binaryAnalyzer.getDisasmCode(bytecode) - 2
             # 如果该合约是我们需要分析的主要合约，则记录结束节点位置
             if aimContract in name:
+                pos = binaryAnalyzer.getAimDisasmCode(bytecode) - 2
                 binaryAnalyzer.aimContractEndPos = pos
+            else:
+                binaryAnalyzer.getDisasmCode(bytecode)
+    print(binaryAnalyzer.aimContractEndPos)
     binaryAnalyzer.getDisasm()
 
 
