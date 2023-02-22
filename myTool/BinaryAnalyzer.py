@@ -243,7 +243,6 @@ class BinaryAnalyzer:
         block = self.pos2BlockMap.get(0)
         # 检测公共函数的位置
         while block.fallPos != -1:
-            # print(block.info())
             if block.instrList[0][1][0] == "JUMPDEST":
                 break
             if block.conditionalJumpPos != -1 and block.conditionalJumpExpression.startswith("EQ"):
@@ -270,7 +269,6 @@ class BinaryAnalyzer:
                 # 如果startBlockPos在visitBlock中，则表示该基本块已被访问
                 visitedInstr += instrNum
             totalInstr += instrNum
-            value.info()
             # print(visitedInstr, totalInstr)
 
         # 计算代码覆盖率
@@ -292,7 +290,7 @@ class BinaryAnalyzer:
                         {'color': '#999999', 'fontcolor': '#888888', 'fontsize': '10', 'fontname': 'FangSong'}, None,
                         False)
         for key, value in self.pos2BlockMap.items():
-            # value.infoPrint()
+            value.infoPrint()
             if value.function != 'NULL':
                 graph.node(str(value.startBlockPos), color='red')
             else:
