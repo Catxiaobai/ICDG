@@ -50,7 +50,7 @@ class BinaryAnalyzer:
 
     def getDisasm(self):
         self.disasm = utils.disasmParser(self.aimDisasmCode, 0)
-        self.disasm += utils.disasmParser(self.disasmCode, self.aimContractEndPos)
+        # self.disasm += utils.disasmParser(self.disasmCode, self.aimContractEndPos)
         # print(self.disasm)
 
     def getBasicBlock(self):

@@ -121,3 +121,4 @@ def getType(instr):
         else:
             result = 2
             break
+    return result

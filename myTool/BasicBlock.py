@@ -65,4 +65,4 @@ class BasicBlock:
         # print(self.function)
         # print(self.callJumpPos)
         for attr in self.__dict__:
-            print(attr, self.__dict__[attr])
+            print(self.__dict__[attr])
