@@ -107,9 +107,11 @@ class EvmSimulator:
                 # 获取跳转位置
                 address = evmStack.pop()
                 legalJump = False
+                print('jumpAddress: ', address)
                 # 判断跳转位置是否合法
                 if utils.getType(address) == utils.DIGITAL:
                     jumpPos = int(address.split("_")[0])
+                    print('jump: ', jumpPos)
                     # 如果跳转位置是0或者不在pos2BlockMap中，则跳转不合法
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         self.pos2BlockMap[currentBlockID].unconditionalJumpPos = -1
@@ -133,13 +135,13 @@ class EvmSimulator:
                 # 从栈顶依次弹出两个元素
                 address = evmStack.pop()
                 condition = evmStack.pop()
-                # print('----------------JUMPI的跳转:', address, condition)
                 legalJump = False
+                print('jumpiAddress: ', address)
                 # 判断地址是否是数字
                 if utils.getType(address) == utils.DIGITAL:
                     # 解析跳转位置
                     jumpPos = int(address.split("_")[0])
-                    # print(jumpPos)
+                    print('jumpi: ', jumpPos)
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = -1
@@ -177,9 +179,9 @@ class EvmSimulator:
                         # todo：不是转账，跨合约调用，进行分析连接
                         # legalJump = False
                         # print('----------------CALL剩下的跨合约跳转时的栈信息', evmStack)
-                        evmStack.pop()
-                        aim = evmStack.pop()
-                        print('目标函数跳转位置', aim.split('_')[0])
+                        # evmStack.pop()
+                        # aim = evmStack.pop()
+                        # print('目标函数跳转位置', aim.split('_')[0])
 
                 result = instr + "_" + str(current_PC)
                 evmStack.append(result)
@@ -695,7 +697,6 @@ class EvmSimulator:
                 pushedValue = "0"
             if len(pushedValue) <= 10:
                 pushvalue = int(pushedValue, 16)
-                print('pushvalue:', pushvalue)
                 evmStack.append(str(pushvalue) + "_" + str(current_PC))
             else:
                 evmStack.append(instr + "_" + str(current_PC))

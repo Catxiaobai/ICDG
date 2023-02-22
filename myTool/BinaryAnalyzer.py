@@ -109,7 +109,7 @@ class BinaryAnalyzer:
                 if block.startBlockPos >= self.aimContractEndPos:
                     block.isCalledContract = True
                     block.callJumpPos = self.aimContractEndPos
-        print(self.pos2BlockMap.items())
+        # print(self.pos2BlockMap.items())
 
     def addFallEdges(self) -> None:
         # 添加从当前基本块到“落地点”（即下一个基本块）的边
@@ -270,7 +270,7 @@ class BinaryAnalyzer:
                 # 如果startBlockPos在visitBlock中，则表示该基本块已被访问
                 visitedInstr += instrNum
             totalInstr += instrNum
-            # value.info()
+            value.info()
             # print(visitedInstr, totalInstr)
 
         # 计算代码覆盖率
