@@ -24,7 +24,7 @@ def printStack(instr, current_PC, evmStack):
 class EvmSimulator:
     LOOP_LIMITED = 3  # 边访问限制的次数，即最多访问三次
 
-    def __init__(self, pos2BlockMap):
+    def __init__(self, pos2BlockMap, first):
         """
         EVMSimulator类的构造函数，创建一个以字节码为输入的模拟器对象
         :param pos2BlockMap: 字节码与基本块之间的映射表
@@ -34,7 +34,7 @@ class EvmSimulator:
         self.stackEvents = []  # 模拟栈事件的列表
         self.versionGap = False  # 是否存在版本差异
         self.misRecognizedJump = False  # 是否存在错误的跳转
-        start = self.pos2BlockMap[0]  # 获取第一个基本块
+        start = self.pos2BlockMap[first]  # 获取第一个基本块
         self.dfsExeBlock(start, start.evmStack.copy())  # 从第一个基本块开始DFS执行
 
     def dfsExeBlock(self, block, fatherEvmStack):
@@ -72,12 +72,16 @@ class EvmSimulator:
             if self.flagVisEdge(block.startBlockPos, jumpPos):
                 self.dfsExeBlock(self.pos2BlockMap.get(jumpPos), block.evmStack)
 
-        # myTool: 增加块终止和跨合约跳转
+        # 增加块终止和跨合约跳转
         elif block.jumpType == BasicBlock.TERMINAL:  # 块终止
             pass
 
         elif block.jumpType == BasicBlock.CROSS:
-            pass
+            jumpPos = block.calledJumpPos
+            if jumpPos == -1:  # 如果跳转位置无效
+                return
+            if self.flagVisEdge(block.startBlockPos, jumpPos):
+                self.dfsExeBlock(self.pos2BlockMap.get(jumpPos), block.evmStack)
 
     def flagVisEdge(self, currentBlockID, jumpPos):
         """
@@ -99,7 +103,7 @@ class EvmSimulator:
         currentBlockID = currentBlock.startBlockPos
         instr = instr_pair[1][0]
         current_PC = instr_pair[0]
-
+        # print('currentBlockID:', currentBlockID)
         legalInstr = True
         # 每条指令以 "指令名_指令位置" 的格式压入EVM栈中
         if instr == "JUMP":
@@ -111,7 +115,7 @@ class EvmSimulator:
                 # 判断跳转位置是否合法
                 if utils.getType(address) == utils.DIGITAL:
                     jumpPos = int(address.split("_")[0])
-                    print('jump: ', jumpPos)
+                    # print('jump: ', jumpPos)
                     # 如果跳转位置是0或者不在pos2BlockMap中，则跳转不合法
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         self.pos2BlockMap[currentBlockID].unconditionalJumpPos = -1
@@ -141,7 +145,7 @@ class EvmSimulator:
                 if utils.getType(address) == utils.DIGITAL:
                     # 解析跳转位置
                     jumpPos = int(address.split("_")[0])
-                    print('jumpi: ', jumpPos)
+                    # print('jumpi: ', jumpPos)
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = -1

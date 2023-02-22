@@ -47,6 +47,7 @@ class BasicBlock:
         self.function = "NULL"  # 标记该基本块属于哪个函数
         self.callJumpPos = -1  # 跨合约跳转
         self.isCalledContract = False  # 是否为被调用合约
+        self.calledJumpPos = -1  # 被调用合约目标位置
 
     # 输出基本块信息
     def infoPrint(self):

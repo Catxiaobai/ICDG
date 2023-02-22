@@ -90,18 +90,20 @@ class BinaryAnalyzer:
             elif instr == 'JUMP':
                 start = True
                 block.jumpType = BasicBlock.UNCONDITIONAL
-            # 添加了关于跨合约的部分
-            # elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
-            #     start = True
-            #     block.jumpType = BasicBlock.CROSS
-            # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
-            if instr in {'STOP', 'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
+            elif instr == 'STOP':
                 start = True
                 block.jumpType = BasicBlock.TERMINAL
+            # 添加了关于跨合约的部分
+            elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
+                start = True
+                block.jumpType = BasicBlock.CROSS
+            # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
+            if instr in {'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
+                start = True
+                # block.jumpType = BasicBlock.TERMINAL
             # 将指令对添加到块的指令列表中，并将指令添加到块的指令字符串中
             block.instrList.append(instr_pair)
-            block.instrString.join(f'{instr} ')
-            print('instrString', block.instrString)
+            block.instrString += instr + " "
             # 将lastPos设置为当前位置，如果当前位置为最后一个位置，则将当前块的结束位置设置为lastPos，并将其添加到块映射表中
             lastPos = pos
             if i == len(self.disasm) - 1:
@@ -121,11 +123,11 @@ class BinaryAnalyzer:
                                   BasicBlock.CROSS}:  # myTool:添加了CROSS，因为除了有跳转还有顺序执行
                 block.fallPos = self.startPosList[i + 1]  # 在当前基本块上设置“落地点”（即下一个基本块的起始位置）
 
-    def buildCFG(self):
+    def buildCFG(self, first):
         # 通过 EVMSimulator 类的实例化获取控制流图
-        simulator = EvmSimulator(self.pos2BlockMap)
+        simulator = EvmSimulator(self.pos2BlockMap, first)
         # 更新控制流图相关的变量
-        self.pos2BlockMap = simulator.pos2BlockMap
+        self.pos2BlockMap.update(simulator.pos2BlockMap)
         self.stackEvents = simulator.stackEvents
         self.versionGap = simulator.versionGap
         self.misRecognizedJump = simulator.misRecognizedJump
@@ -312,7 +314,9 @@ class BinaryAnalyzer:
         # 添加顺序执行edges
         self.addFallEdges()
         # 构建 CFG（控制流图）
-        self.buildCFG()
+        self.buildCFG(0)
+        if self.disasmCode != '':
+            self.buildCFG(self.aimContractEndPos)
         # 检测代码块的特征
         self.detectBlockFeatures()
         # myTool:绘制cfg图
