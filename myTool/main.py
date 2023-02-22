@@ -66,11 +66,11 @@ def parserFromSourceCodeFiles(file, aimContract):
             else:
                 binaryAnalyzer.getDisasmCode(bytecode)
 
-    print(binaryAnalyzer.aimDisasmCode)
-    print(binaryAnalyzer.aimContractEndPos)
-    print(binaryAnalyzer.disasmCode)
+    # print(binaryAnalyzer.aimDisasmCode)
+    # print(binaryAnalyzer.aimContractEndPos)
+    # print(binaryAnalyzer.disasmCode)
 
-    binaryAnalyzer.getDisasm()
+    binaryAnalyzer.MCFGConstruction()
 
 
 def main():

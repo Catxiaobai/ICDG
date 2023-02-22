@@ -101,3 +101,23 @@ def disasmParser(disasmCode, startId):
         lineInstr = (lineId, instr)
         disasm.append(lineInstr)
     return disasm
+
+
+def getType(instr):
+    """
+    检查指令是否为字符串，返回值为1表示是整数，返回值为2表示是字符串。Solidity没有双精度数。
+
+    参数：
+    instr: 元组类型，包含EVM指令操作码和操作数。
+
+    返回：
+    返回值为1表示操作数是整数，返回值为2表示操作数是字符串。
+    """
+    # 1: integer, 2: string. Solidity doesn't have double
+    result = 1
+    for i in range(len(instr)):
+        if instr[i].isdigit() or instr[i] == '_':
+            continue
+        else:
+            result = 2
+            break
