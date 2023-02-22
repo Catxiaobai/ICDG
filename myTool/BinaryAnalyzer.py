@@ -50,7 +50,7 @@ class BinaryAnalyzer:
 
     def getDisasm(self):
         self.disasm = utils.disasmParser(self.aimDisasmCode, 0)
-        # self.disasm += utils.disasmParser(self.disasmCode, self.aimContractEndPos)
+        self.disasm += utils.disasmParser(self.disasmCode, self.aimContractEndPos)
         # print(self.disasm)
 
     def getBasicBlock(self):
@@ -88,9 +88,9 @@ class BinaryAnalyzer:
                 start = True
                 block.jumpType = BasicBlock.UNCONDITIONAL
             # 添加了关于跨合约的部分
-            elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
-                start = True
-                block.jumpType = BasicBlock.CROSS
+            # elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
+            #     start = True
+            #     block.jumpType = BasicBlock.CROSS
             # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
             if instr in {'STOP', 'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
                 start = True
@@ -103,6 +103,7 @@ class BinaryAnalyzer:
             if i == len(self.disasm) - 1:
                 block.endBlockPos = lastPos
                 self.pos2BlockMap[block.startBlockPos] = block
+        print(self.pos2BlockMap)
 
     def addFallEdges(self) -> None:
         # 添加从当前基本块到“落地点”（即下一个基本块）的边
@@ -285,7 +286,7 @@ class BinaryAnalyzer:
                         {'color': '#999999', 'fontcolor': '#888888', 'fontsize': '10', 'fontname': 'FangSong'}, None,
                         False)
         for key, value in self.pos2BlockMap.items():
-            value.infoPrint()
+            # value.infoPrint()
             if value.function != 'NULL':
                 graph.node(str(value.startBlockPos), color='red')
             else:

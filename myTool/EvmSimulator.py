@@ -160,7 +160,7 @@ class EvmSimulator:
                 legalInstr = False
 
         elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
-            print('----------------CALL的跨合约跳转时的栈信息', evmStack)
+            # print('----------------CALL的跨合约跳转时的栈信息', evmStack)
             if len(evmStack) >= 7:
                 outgas = evmStack.pop()
                 recipient = evmStack.pop()
@@ -176,10 +176,10 @@ class EvmSimulator:
                         currentBlock.moneyCall = False
                         # todo：不是转账，跨合约调用，进行分析连接
                         # legalJump = False
-                        print('----------------CALL剩下的跨合约跳转时的栈信息', evmStack)
+                        # print('----------------CALL剩下的跨合约跳转时的栈信息', evmStack)
                         evmStack.pop()
                         aim = evmStack.pop()
-                        print('目标函数跳转位置', aim)
+                        print('目标函数跳转位置', aim.split('_')[0])
 
                 result = instr + "_" + str(current_PC)
                 evmStack.append(result)
