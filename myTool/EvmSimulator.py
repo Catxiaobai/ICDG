@@ -147,8 +147,8 @@ class EvmSimulator:
                 if utils.getType(address) == utils.DIGITAL:
                     # 解析跳转位置
                     jumpPos = int(address.split("_")[0])
-                    if currentBlock.isCalledContract:
-                        jumpPos += currentBlock.callJumpPos
+                    currentBlock.infoPrint()
+                    print('jumpPos: ', jumpPos)
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.versionGap = True

@@ -95,12 +95,12 @@ class BinaryAnalyzer:
                 start = True
                 block.jumpType = BasicBlock.CROSS
             # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
-            if instr == 'STOP':
+            # if instr == 'STOP':
+            #     start = True
+            #     block.jumpType = BasicBlock.TERMINAL
+            if instr in {'STOP', 'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
                 start = True
                 block.jumpType = BasicBlock.TERMINAL
-            elif instr in {'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
-                start = True
-                # block.jumpType = BasicBlock.TERMINAL
             # 将指令对添加到块的指令列表中，并将指令添加到块的指令字符串中
             block.instrList.append(instr_pair)
             block.instrString += instr + " "
@@ -293,7 +293,7 @@ class BinaryAnalyzer:
                         {'color': '#999999', 'fontcolor': '#888888', 'fontsize': '10', 'fontname': 'FangSong'}, None,
                         False)
         for key, value in self.pos2BlockMap.items():
-            value.infoPrint()
+            # value.infoPrint()
             if value.function != 'NULL':
                 graph.node(str(value.startBlockPos), color='red')
             else:
