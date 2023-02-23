@@ -304,6 +304,8 @@ class BinaryAnalyzer:
         for key, value in self.pos2BlockMap.items():
             value.infoPrint()
             if value.function != 'NULL':
+                graph.node(str(value.startBlockPos), color='blue')
+            elif 'TIMESTAMP' in value.conditionalJumpExpression:
                 graph.node(str(value.startBlockPos), color='red')
             else:
                 graph.node(str(value.startBlockPos))
