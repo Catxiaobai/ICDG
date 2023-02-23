@@ -222,8 +222,7 @@ class EvmSimulator:
                 legalInstr = False
         elif instr == "STOP":
             # STOP 指令，不做任何操作
-            if currentBlock.isCalledContract:
-                self.functionPosMap.update({'STOP': currentBlockID})
+            pass
 
         elif instr == "ADD":
             if len(evmStack) >= 2:
@@ -813,6 +812,8 @@ class EvmSimulator:
                 evmStack.pop()
             else:
                 legalInstr = False
+            if currentBlock.isCalledContract:
+                self.functionPosMap.update({'STOP': currentBlock.terminalJumpPos})
 
         # elif instr == "DELEGATECALL":
         #     if len(evmStack) >= 6:
