@@ -133,6 +133,7 @@ class BinaryAnalyzer:
     def buildCFG(self, first, functionPos):
         # 通过 EVMSimulator 类的实例化获取控制流图
         simulator = EvmSimulator(self.pos2BlockMap, first, functionPos)
+        # print(simulator.stackEvents)
         # 更新控制流图相关的变量
         self.pos2BlockMap.update(simulator.pos2BlockMap)
         self.stackEvents = simulator.stackEvents
@@ -303,7 +304,7 @@ class BinaryAnalyzer:
         for key, value in self.pos2BlockMap.items():
             value.infoPrint()
             if value.function != 'NULL':
-                graph.node(str(value.startBlockPos))
+                graph.node(str(value.startBlockPos), color='red')
             else:
                 graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
@@ -313,7 +314,7 @@ class BinaryAnalyzer:
             if value.unconditionalJumpPos != -1:
                 graph.edge(str(value.startBlockPos), str(value.unconditionalJumpPos))
             if value.calledFunctionJumpPos != -1:
-                graph.edge(str(value.startBlockPos), str(value.calledFunctionJumpPos), color='red')
+                graph.edge(str(value.startBlockPos), str(value.calledFunctionJumpPos), color='green')
             if value.terminalJumpPos != -1:
                 graph.edge(str(value.startBlockPos), str(value.terminalJumpPos))
         # graph.view()

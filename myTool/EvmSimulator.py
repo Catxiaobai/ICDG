@@ -168,9 +168,11 @@ class EvmSimulator:
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = jumpPos
                         self.pos2BlockMap[currentBlockID].conditionalJumpExpression = condition
-                        if condition.startswith("EQ") and currentBlock.isCalledContract:
+                        if condition.startswith("EQ"):
                             self.pos2BlockMap[jumpPos].function = re.split('[(_,)]', condition)[2]
-                            self.functionPosMap.update({re.split('[(_,)]', condition)[2]: jumpPos})
+                            if currentBlock.isCalledContract:
+                                self.functionPosMap.update({re.split('[(_,)]', condition)[2]: jumpPos})
+
                     legalJump = True
                 if not legalJump:
                     # 未能解析出跳转地址，报错
