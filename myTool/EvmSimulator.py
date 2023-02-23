@@ -209,6 +209,8 @@ class EvmSimulator:
                         elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
                             self.pos2BlockMap[currentBlockID].calledFunctionJumpPos = jumpPos
                             legalJump = True
+                        self.pos2BlockMap[self.functionPosMap['STOP']].terminalJumpPos = self.pos2BlockMap[
+                            currentBlockID].fallPos
                         if not legalJump:
                             # 未能解析出跳转地址，报错
                             print(f"Error JUMPI on: {current_PC}")
@@ -220,7 +222,8 @@ class EvmSimulator:
                 legalInstr = False
         elif instr == "STOP":
             # STOP 指令，不做任何操作
-            pass
+            if currentBlock.isCalledContract:
+                self.functionPosMap.update({'STOP': currentBlockID})
 
         elif instr == "ADD":
             if len(evmStack) >= 2:

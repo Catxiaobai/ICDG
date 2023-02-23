@@ -100,10 +100,10 @@ class BinaryAnalyzer:
                 block.jumpType = BasicBlock.TERMINAL
                 if instr == 'STOP':
                     if block.startBlockPos == self.aimContractEndPos - 2 or i == len(self.disasm) - 1:
-                        block.endBlockPos = True
+                        block.isEndBlock = True
                     else:
-                        block.endBlockPos = False
-                if not block.endBlockPos:
+                        block.isEndBlock = False
+                if not block.isEndBlock:
                     if block.startBlockPos < self.aimContractEndPos - 2:
                         block.terminalJumpPos = self.aimContractEndPos - 2
                     else:
