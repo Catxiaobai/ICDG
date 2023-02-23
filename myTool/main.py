@@ -76,7 +76,7 @@ def parserFromSourceCodeFiles(file, aimContract):
 def main():
     start_time = time.time()  # 计时开始
     # 从源代码检测缺陷
-    file = "1.sol"
+    file = "timestamp.sol"
     parserFromSourceCodeFiles(file, "Test2")
 
     end_time = time.time()  # 计时结束
