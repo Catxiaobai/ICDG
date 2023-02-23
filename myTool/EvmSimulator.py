@@ -34,10 +34,10 @@ class EvmSimulator:
         self.stackEvents = []  # 模拟栈事件的列表
         self.versionGap = False  # 是否存在版本差异
         self.misRecognizedJump = False  # 是否存在错误的跳转
-        start = self.pos2BlockMap[first]  # 获取第一个基本块
-        self.dfsExeBlock(start, start.evmStack.copy())  # 从第一个基本块开始DFS执行
         self.functionPosMap = {}  # 记录函数的起始块
         self.functionPosMap.update(functionPos)
+        start = self.pos2BlockMap[first]  # 获取第一个基本块
+        self.dfsExeBlock(start, start.evmStack.copy())  # 从第一个基本块开始DFS执行
 
     def dfsExeBlock(self, block, fatherEvmStack):
         # 用父堆栈复制新堆栈
