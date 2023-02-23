@@ -76,12 +76,12 @@ class EvmSimulator:
         elif block.jumpType == BasicBlock.TERMINAL:  # 块终止
             pass
 
-        elif block.jumpType == BasicBlock.CROSS:
-            jumpPos = block.calledJumpPos
-            if jumpPos == -1:  # 如果跳转位置无效
-                return
-            if self.flagVisEdge(block.startBlockPos, jumpPos):
-                self.dfsExeBlock(self.pos2BlockMap.get(jumpPos), block.evmStack)
+        # elif block.jumpType == BasicBlock.CROSS:
+        #     jumpPos = block.calledJumpPos
+        #     if jumpPos == -1:  # 如果跳转位置无效
+        #         return
+        #     if self.flagVisEdge(block.startBlockPos, jumpPos):
+        #         self.dfsExeBlock(self.pos2BlockMap.get(jumpPos), block.evmStack)
 
     def flagVisEdge(self, currentBlockID, jumpPos):
         """

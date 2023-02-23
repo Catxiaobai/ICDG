@@ -51,7 +51,7 @@ class BinaryAnalyzer:
     def getDisasm(self):
         self.disasm = utils.disasmParser(self.aimDisasmCode, 0)
         self.disasm += utils.disasmParser(self.disasmCode, self.aimContractEndPos)
-        # print(self.disasm)
+        print(self.disasm)
 
     def getBasicBlock(self):
         block = BasicBlock()
@@ -90,14 +90,14 @@ class BinaryAnalyzer:
             elif instr == 'JUMP':
                 start = True
                 block.jumpType = BasicBlock.UNCONDITIONAL
-            elif instr == 'STOP':
-                start = True
-                block.jumpType = BasicBlock.TERMINAL
             # 添加了关于跨合约的部分
             elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
                 start = True
                 block.jumpType = BasicBlock.CROSS
             # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
+            if instr == 'STOP':
+                start = True
+                block.jumpType = BasicBlock.TERMINAL
             elif instr in {'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
                 start = True
                 # block.jumpType = BasicBlock.TERMINAL
