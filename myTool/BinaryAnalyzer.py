@@ -95,12 +95,19 @@ class BinaryAnalyzer:
                 start = True
                 block.jumpType = BasicBlock.CROSS
             # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
-            # if instr == 'STOP':
-            #     start = True
-            #     block.jumpType = BasicBlock.TERMINAL
             if instr in {'STOP', 'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
                 start = True
                 block.jumpType = BasicBlock.TERMINAL
+                if instr == 'STOP':
+                    if block.startBlockPos == self.aimContractEndPos - 2 or i == len(self.disasm) - 1:
+                        block.endBlockPos = True
+                    else:
+                        block.endBlockPos = False
+                if not block.endBlockPos:
+                    if block.startBlockPos < self.aimContractEndPos - 2:
+                        block.terminalJumpPos = self.aimContractEndPos - 2
+                    else:
+                        block.terminalJumpPos = self.disasm[-1][0]
             # 将指令对添加到块的指令列表中，并将指令添加到块的指令字符串中
             block.instrList.append(instr_pair)
             block.instrString += instr + " "
@@ -305,6 +312,10 @@ class BinaryAnalyzer:
                 graph.edge(str(value.startBlockPos), str(value.conditionalJumpPos))
             if value.unconditionalJumpPos != -1:
                 graph.edge(str(value.startBlockPos), str(value.unconditionalJumpPos))
+            if value.calledFunctionJumpPos != -1:
+                graph.edge(str(value.startBlockPos), str(value.calledFunctionJumpPos))
+            if value.terminalJumpPos != -1:
+                graph.edge(str(value.startBlockPos), str(value.terminalJumpPos))
         # graph.view()
         graph.render('cfg', view=True)
 
