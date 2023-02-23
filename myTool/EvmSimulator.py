@@ -115,6 +115,8 @@ class EvmSimulator:
                 # 判断跳转位置是否合法
                 if utils.getType(address) == utils.DIGITAL:
                     jumpPos = int(address.split("_")[0])
+                    if currentBlock.isCalledContract:
+                        jumpPos += currentBlock.callJumpPos
                     # print('jump: ', jumpPos)
                     # 如果跳转位置是0或者不在pos2BlockMap中，则跳转不合法
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
@@ -145,12 +147,13 @@ class EvmSimulator:
                 if utils.getType(address) == utils.DIGITAL:
                     # 解析跳转位置
                     jumpPos = int(address.split("_")[0])
-                    # print('jumpi: ', jumpPos)
+                    if currentBlock.isCalledContract:
+                        jumpPos += currentBlock.callJumpPos
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         # 设置当前块的有条件跳转位置和条件表达式
+                        self.versionGap = True
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = -1
                         self.pos2BlockMap[currentBlockID].conditionalJumpExpression = condition
-                        self.versionGap = True
                     elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = jumpPos
