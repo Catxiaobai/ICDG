@@ -76,12 +76,18 @@ class EvmSimulator:
         elif block.jumpType == BasicBlock.TERMINAL:  # 块终止
             pass
 
-        # elif block.jumpType == BasicBlock.CROSS:
-        #     jumpPos = block.calledJumpPos
-        #     if jumpPos == -1:  # 如果跳转位置无效
-        #         return
-        #     if self.flagVisEdge(block.startBlockPos, jumpPos):
-        #         self.dfsExeBlock(self.pos2BlockMap.get(jumpPos), block.evmStack)
+        elif block.jumpType == BasicBlock.CROSS:
+            # left_branch = block.conditionalJumpPos  # 左分支跳转位置
+            # if left_branch == -1:  # 如果左分支跳转位置无效
+            #     return
+            # # 标记已访问过的边，递归执行左分支区块
+            # if self.flagVisEdge(block.startBlockPos, left_branch):
+            #     self.dfsExeBlock(self.pos2BlockMap.get(left_branch), block.evmStack)
+
+            right_branch = block.fallPos  # 右分支跳转位置
+            # 标记已访问过的边，递归执行右分支区块
+            if self.flagVisEdge(block.startBlockPos, right_branch):
+                self.dfsExeBlock(self.pos2BlockMap.get(right_branch), block.evmStack)
 
     def flagVisEdge(self, currentBlockID, jumpPos):
         """
@@ -111,7 +117,7 @@ class EvmSimulator:
                 # 获取跳转位置
                 address = evmStack.pop()
                 legalJump = False
-                print('jumpAddress: ', address)
+                # print('jumpAddress: ', address)
                 # 判断跳转位置是否合法
                 if utils.getType(address) == utils.DIGITAL:
                     jumpPos = int(address.split("_")[0])
@@ -142,13 +148,15 @@ class EvmSimulator:
                 address = evmStack.pop()
                 condition = evmStack.pop()
                 legalJump = False
-                print('jumpiAddress: ', address)
+                # print('jumpiAddress: ', address)
                 # 判断地址是否是数字
                 if utils.getType(address) == utils.DIGITAL:
                     # 解析跳转位置
                     jumpPos = int(address.split("_")[0])
-                    currentBlock.infoPrint()
-                    print('jumpPos: ', jumpPos)
+                    # currentBlock.infoPrint()
+                    # print('jumpPos: ', jumpPos)
+                    if currentBlock.isCalledContract:
+                        jumpPos += currentBlock.callJumpPos
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.versionGap = True
