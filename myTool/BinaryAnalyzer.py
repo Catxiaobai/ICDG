@@ -51,7 +51,7 @@ class BinaryAnalyzer:
     def getDisasm(self):
         self.disasm = utils.disasmParser(self.aimDisasmCode, 0)
         self.disasm += utils.disasmParser(self.disasmCode, self.aimContractEndPos)
-        print(self.disasm)
+        # print(self.disasm)
 
     def getBasicBlock(self):
         block = BasicBlock()
@@ -119,7 +119,7 @@ class BinaryAnalyzer:
                 if block.startBlockPos >= self.aimContractEndPos - 1:
                     block.isCalledContract = True
                     block.callJumpPos = self.aimContractEndPos
-        print(self.pos2BlockMap)
+        # print(self.pos2BlockMap)
 
     def addFallEdges(self) -> None:
         # 添加从当前基本块到“落地点”（即下一个基本块）的边
@@ -301,7 +301,7 @@ class BinaryAnalyzer:
                         {'color': '#999999', 'fontcolor': '#888888', 'fontsize': '10', 'fontname': 'FangSong'}, None,
                         False)
         for key, value in self.pos2BlockMap.items():
-            # value.infoPrint()
+            value.infoPrint()
             if value.function != 'NULL':
                 graph.node(str(value.startBlockPos))
             else:

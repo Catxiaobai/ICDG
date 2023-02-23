@@ -197,7 +197,7 @@ class EvmSimulator:
                         # todo：不是转账，跨合约调用，进行分析连接
                         legalJump = False
                         aim = evmStack[-2]
-                        print('目标函数跳转位置', aim.split('_')[0])
+                        # print('目标函数跳转位置', aim.split('_')[0])
                         jumpPos = int(self.functionPosMap[aim.split('_')[0]])
                         # print('jump: ', jumpPos)
                         # 如果跳转位置是0或者不在pos2BlockMap中，则跳转不合法
