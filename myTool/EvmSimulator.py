@@ -209,7 +209,7 @@ class EvmSimulator:
                         elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
                             self.pos2BlockMap[currentBlockID].calledFunctionJumpPos = jumpPos
                             legalJump = True
-                        self.pos2BlockMap[self.functionPosMap['STOP']].terminalJumpPos = self.pos2BlockMap[
+                        self.pos2BlockMap[self.functionPosMap['STOP']].calledFunctionJumpPos = self.pos2BlockMap[
                             currentBlockID].fallPos
                         if not legalJump:
                             # 未能解析出跳转地址，报错

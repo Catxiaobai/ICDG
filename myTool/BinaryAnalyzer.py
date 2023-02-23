@@ -303,7 +303,7 @@ class BinaryAnalyzer:
         for key, value in self.pos2BlockMap.items():
             # value.infoPrint()
             if value.function != 'NULL':
-                graph.node(str(value.startBlockPos), color='red')
+                graph.node(str(value.startBlockPos))
             else:
                 graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
@@ -313,7 +313,7 @@ class BinaryAnalyzer:
             if value.unconditionalJumpPos != -1:
                 graph.edge(str(value.startBlockPos), str(value.unconditionalJumpPos))
             if value.calledFunctionJumpPos != -1:
-                graph.edge(str(value.startBlockPos), str(value.calledFunctionJumpPos))
+                graph.edge(str(value.startBlockPos), str(value.calledFunctionJumpPos), color='red')
             if value.terminalJumpPos != -1:
                 graph.edge(str(value.startBlockPos), str(value.terminalJumpPos))
         # graph.view()
