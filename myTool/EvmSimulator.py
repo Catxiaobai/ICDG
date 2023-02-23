@@ -24,7 +24,7 @@ def printStack(instr, current_PC, evmStack):
 class EvmSimulator:
     LOOP_LIMITED = 3  # 边访问限制的次数，即最多访问三次
 
-    def __init__(self, pos2BlockMap, first):
+    def __init__(self, pos2BlockMap, first, functionPos):
         """
         EVMSimulator类的构造函数，创建一个以字节码为输入的模拟器对象
         :param pos2BlockMap: 字节码与基本块之间的映射表
@@ -36,6 +36,8 @@ class EvmSimulator:
         self.misRecognizedJump = False  # 是否存在错误的跳转
         start = self.pos2BlockMap[first]  # 获取第一个基本块
         self.dfsExeBlock(start, start.evmStack.copy())  # 从第一个基本块开始DFS执行
+        self.functionPosMap = {}  # 记录函数的起始块
+        self.functionPosMap.update(functionPos)
 
     def dfsExeBlock(self, block, fatherEvmStack):
         # 用父堆栈复制新堆栈
@@ -77,12 +79,12 @@ class EvmSimulator:
             pass
 
         elif block.jumpType == BasicBlock.CROSS:
-            # left_branch = block.conditionalJumpPos  # 左分支跳转位置
-            # if left_branch == -1:  # 如果左分支跳转位置无效
-            #     return
-            # # 标记已访问过的边，递归执行左分支区块
-            # if self.flagVisEdge(block.startBlockPos, left_branch):
-            #     self.dfsExeBlock(self.pos2BlockMap.get(left_branch), block.evmStack)
+            left_branch = block.calledFunctionJumpPos  # 左分支跳转位置
+            if left_branch == -1:  # 如果左分支跳转位置无效
+                return
+            # 标记已访问过的边，递归执行左分支区块
+            if self.flagVisEdge(block.startBlockPos, left_branch):
+                self.dfsExeBlock(self.pos2BlockMap.get(left_branch), block.evmStack)
 
             right_branch = block.fallPos  # 右分支跳转位置
             # 标记已访问过的边，递归执行右分支区块
@@ -168,6 +170,7 @@ class EvmSimulator:
                         self.pos2BlockMap[currentBlockID].conditionalJumpExpression = condition
                         if condition.startswith("EQ"):
                             self.pos2BlockMap[jumpPos].function = re.split('[(_,)]', condition)[2]
+                            self.pos2BlockMap = {re.split('[(_,)]', condition)[2], jumpPos}
                     legalJump = True
                 if not legalJump:
                     # 未能解析出跳转地址，报错
@@ -192,11 +195,24 @@ class EvmSimulator:
                     if amount == 0:
                         currentBlock.moneyCall = False
                         # todo：不是转账，跨合约调用，进行分析连接
-                        # legalJump = False
-                        # print('----------------CALL剩下的跨合约跳转时的栈信息', evmStack)
-                        # evmStack.pop()
-                        # aim = evmStack.pop()
-                        # print('目标函数跳转位置', aim.split('_')[0])
+                        legalJump = False
+                        aim = evmStack[-2]
+                        print('目标函数跳转位置', aim.split('_')[0])
+                        jumpPos = int(self.functionPosMap[aim])
+                        # print('jump: ', jumpPos)
+                        # 如果跳转位置是0或者不在pos2BlockMap中，则跳转不合法
+                        if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
+                            self.pos2BlockMap[currentBlockID].calledFunctionJumpPos = -1
+                            legalJump = True
+                            self.versionGap = True
+                        # 如果跳转位置是一个JUMPDEST，则跳转合法
+                        elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
+                            self.pos2BlockMap[currentBlockID].calledFunctionJumpPos = jumpPos
+                            legalJump = True
+                        if not legalJump:
+                            # 未能解析出跳转地址，报错
+                            print(f"Error JUMPI on: {current_PC}")
+                            self.misRecognizedJump = True
 
                 result = instr + "_" + str(current_PC)
                 evmStack.append(result)

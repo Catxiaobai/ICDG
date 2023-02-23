@@ -123,9 +123,9 @@ class BinaryAnalyzer:
                                   BasicBlock.CROSS}:  # myTool:添加了CROSS，因为除了有跳转还有顺序执行
                 block.fallPos = self.startPosList[i + 1]  # 在当前基本块上设置“落地点”（即下一个基本块的起始位置）
 
-    def buildCFG(self, first):
+    def buildCFG(self, first, functionPos):
         # 通过 EVMSimulator 类的实例化获取控制流图
-        simulator = EvmSimulator(self.pos2BlockMap, first)
+        simulator = EvmSimulator(self.pos2BlockMap, first, functionPos)
         # 更新控制流图相关的变量
         self.pos2BlockMap.update(simulator.pos2BlockMap)
         self.stackEvents = simulator.stackEvents
@@ -134,6 +134,7 @@ class BinaryAnalyzer:
         if self.versionGap:
             # 如果字节码版本不支持，则打印警告信息
             print("Bytecode version may not support. The default Solidity version is 0.4.25;")
+        return simulator.functionPosMap
 
     def flagLoop(self, totalPath, startLoopPos):
         startLoopBlock = self.pos2BlockMap[startLoopPos]  # 获取循环的起始基本块
@@ -314,9 +315,10 @@ class BinaryAnalyzer:
         # 添加顺序执行edges
         self.addFallEdges()
         # 构建 CFG（控制流图）
-        self.buildCFG(0)
+        functionPos = {}
         if self.disasmCode != '':
-            self.buildCFG(self.aimContractEndPos - 1)
+            functionPos = self.buildCFG(self.aimContractEndPos - 1, {})
+        self.buildCFG(0, functionPos)
         # 检测代码块的特征
         self.detectBlockFeatures()
         # myTool:绘制cfg图
