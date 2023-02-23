@@ -170,7 +170,7 @@ class EvmSimulator:
                         self.pos2BlockMap[currentBlockID].conditionalJumpExpression = condition
                         if condition.startswith("EQ"):
                             self.pos2BlockMap[jumpPos].function = re.split('[(_,)]', condition)[2]
-                            self.pos2BlockMap = {re.split('[(_,)]', condition)[2], jumpPos}
+                            self.functionPosMap.update({re.split('[(_,)]', condition)[2], jumpPos})
                     legalJump = True
                 if not legalJump:
                     # 未能解析出跳转地址，报错
