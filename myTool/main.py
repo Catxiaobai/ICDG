@@ -6,6 +6,7 @@
 @Author : mengjie-1998@qq.com
 @Remark: a brief description
 """
+import os
 import re
 import subprocess
 import time
@@ -78,7 +79,14 @@ def main():
     # 从源代码检测缺陷
     file = "timestamp.sol"
     parserFromSourceCodeFiles(file, "Test2")
-
+    # 文件夹下检测
+    filePath = "timestamps/"
+    pathList = os.listdir(filePath)
+    pathList.sort()
+    for fileName in pathList:
+        print(fileName)
+        file = filePath + fileName
+        parserFromSourceCodeFiles(file, "Test2")
     end_time = time.time()  # 计时结束
     print(f"Running time: {end_time - start_time:.2f} s")  # 输出总运行时间
 

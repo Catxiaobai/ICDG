@@ -302,12 +302,12 @@ class BinaryAnalyzer:
                         {'color': '#999999', 'fontcolor': '#888888', 'fontsize': '10', 'fontname': 'FangSong'}, None,
                         False)
         for key, value in self.pos2BlockMap.items():
-            value.infoPrint()
+            # value.infoPrint()
             if value.function != 'NULL':
                 graph.node(str(value.startBlockPos), color='blue')
             if 'TIMESTAMP' in value.instrString:
                 graph.node(str(value.startBlockPos), color='red')
-            if 'TIMESTAMP' in value.instrString:
+            if 'TIMESTAMP' in value.conditionalJumpExpression:
                 print('有时间戳漏洞')
             else:
                 graph.node(str(value.startBlockPos))
