@@ -1,14 +1,16 @@
-pragma solidity ^0.4.25;
+pragma solidity >=0.4.19 <0.6.0;
 
-contract Victim{
-    mapping(address => uint) public userBalance;
-    function withDraw(uint amount){
-
-        if(userBalance[msg.sender] > amount){
-            //msg.sender.transfer(amount);
-            //userBalance[msg.sender] -= amount;
-            msg.sender.call.value(amount)();
-            userBalance[msg.sender] -= amount;
+contract Test1 {
+    uint a = 0;
+    function doS() public payable{
+        while (true) {
+            a = a + 1;
         }
+    }
+}
+
+contract Test2 {
+    function callDoS(Test1 test1) public payable{
+        test1.doS();
     }
 }

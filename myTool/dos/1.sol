@@ -1,16 +1,16 @@
 pragma solidity >=0.4.19 <0.6.0;
 
 contract Test1 {
-    function doS() public pure{
+    uint a = 0;
+    function doS() public payable{
         while (true) {
-            uint256 a = 0;
             a = a + 1;
         }
     }
 }
 
 contract Test2 {
-    function callDoS(Test1 test1) public pure{
+    function callDoS(Test1 test1) public payable{
         test1.doS();
     }
 }

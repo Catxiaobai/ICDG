@@ -160,7 +160,6 @@ class EVMSimulator:
                 legalInstr = False
 
         elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
-            print('----------------CALL的跨合约跳转时的栈信息', evm_stack)
             if len(evm_stack) >= 7:
                 outgas = evm_stack.pop()
                 recipient = evm_stack.pop()
