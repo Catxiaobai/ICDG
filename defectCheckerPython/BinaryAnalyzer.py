@@ -110,10 +110,10 @@ class BinaryAnalyzer:
             elif instr == 'JUMP':
                 start = True
                 block.jumpType = BasicBlock.UNCONDITIONAL
-            # myTool:添加了关于跨合约的部分
-            elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
-                start = True
-                block.jumpType = BasicBlock.CROSS
+            # # myTool:添加了关于跨合约的部分
+            # elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
+            #     start = True
+            #     block.jumpType = BasicBlock.CROSS
             # 如果当前指令为STOP、RETURN、REVERT、SELFDESTRUCT或ASSERTFAIL，则说明当前块是终止块
             if instr in {'STOP', 'RETURN', 'REVERT', 'SELFDESTRUCT', 'ASSERTFAIL'}:
                 start = True

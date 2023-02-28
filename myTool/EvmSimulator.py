@@ -125,7 +125,8 @@ class EvmSimulator:
                     jumpPos = int(address.split("_")[0])
                     if currentBlock.isCalledContract:
                         jumpPos += currentBlock.callJumpPos
-                    # print('jump: ', jumpPos)
+                    print('jump的pos: ', jumpPos)
+                    print(currentBlock.infoPrint())
                     # 如果跳转位置是0或者不在pos2BlockMap中，则跳转不合法
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         self.pos2BlockMap[currentBlockID].unconditionalJumpPos = -1
@@ -215,7 +216,7 @@ class EvmSimulator:
                             currentBlockID].fallPos
                         if not legalJump:
                             # 未能解析出跳转地址，报错
-                            print(f"Error JUMPI on: {current_PC}")
+                            print(f"Error CALL on: {current_PC}")
                             self.misRecognizedJump = True
 
                 result = instr + "_" + str(current_PC)

@@ -116,7 +116,7 @@ def main():
     # byteDefectChecker = parserFromBytecode(bytecode1)
     # print(byteDefectChecker.printAllDetectResult())
     # 从源代码检测缺陷
-    filePath = "1.sol"
+    filePath = "../myTool/dos/1.sol"
     parserFromSourceCodeFileCross(filePath, "Test2")
 
     end_time = time.time()  # 计时结束
