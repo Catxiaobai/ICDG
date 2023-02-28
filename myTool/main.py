@@ -77,8 +77,8 @@ def parserFromSourceCodeFiles(file, aimContract):
 def main():
     start_time = time.time()  # 计时开始
     # 从源代码检测缺陷
-    file = "timestamp.sol"
-    parserFromSourceCodeFiles(file, "Test2")
+    # file = "timestamps/timestamp.sol"
+    # parserFromSourceCodeFiles(file, "Test2")
     # 文件夹下检测
     filePath = "timestamps/"
     pathList = os.listdir(filePath)
