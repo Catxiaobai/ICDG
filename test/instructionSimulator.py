@@ -7,7 +7,6 @@
 @Remark: a brief description
 """
 import copy
-from queue import Queue
 
 import block
 import re

@@ -1,4 +1,4 @@
-pragma solidity >=0.4.22 <0.6.0;
+pragma solidity >=0.4.19 <0.6.0;
 
 contract Test2 {
     function bug_time_inter(Test1 t1) public payable {
