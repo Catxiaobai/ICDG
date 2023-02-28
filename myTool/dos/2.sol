@@ -1,8 +1,6 @@
 pragma solidity >=0.4.19 <0.6.0;
 
 contract Test1 {
-    uint256 public value;
-
     function doS(address x) public payable {
         while (true) {
             x.transfer(0.1 ether);
