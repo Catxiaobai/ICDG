@@ -12,6 +12,7 @@ import subprocess
 import time
 
 from BinaryAnalyzer import BinaryAnalyzer
+from VulnerabilityScanner import VulnerabilityScanner
 
 
 def parserFromAimBytecode(bytecode):
@@ -66,6 +67,13 @@ def parserFromSourceCodeFiles(file, aimContract):
                 binaryAnalyzer.aimContractEndPos = pos
             else:
                 binaryAnalyzer.getDisasmCode(bytecode)
+
+    if binaryAnalyzer.legalContract:
+        try:
+            vulnScan = VulnerabilityScanner(binaryAnalyzer)
+            vulnScan.detectTimestamp()
+        except Exception as e:
+            print(e)
 
     # print(binaryAnalyzer.aimDisasmCode)
     # print(binaryAnalyzer.aimContractEndPos)

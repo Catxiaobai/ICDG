@@ -39,6 +39,10 @@ class BinaryAnalyzer:
         self.aimContractEndPos = -1
         self.aimDisasmCode = ''
 
+    def infoPrint(self):
+        for attr in self.__dict__:
+            print(self.__dict__[attr])
+
     def getDisasmCode(self, bytecode):
         disasmCode, pos = utils.getDisasmCode(bytecode)
         self.disasmCode += disasmCode
