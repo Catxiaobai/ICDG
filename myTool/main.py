@@ -73,7 +73,7 @@ def parserFromSourceCodeFiles(file, aimContract):
     if binaryAnalyzer.legalContract:
         try:
             vulnScan = VulnerabilityScanner(binaryAnalyzer)
-            vulnScan.detectTimestamp()
+            vulnScan.scanVulnerability()
         except Exception as e:
             print(e)
 
