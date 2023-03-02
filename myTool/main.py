@@ -68,6 +68,8 @@ def parserFromSourceCodeFiles(file, aimContract):
             else:
                 binaryAnalyzer.getDisasmCode(bytecode)
 
+    binaryAnalyzer.MCFGConstruction()
+
     if binaryAnalyzer.legalContract:
         try:
             vulnScan = VulnerabilityScanner(binaryAnalyzer)
@@ -75,17 +77,11 @@ def parserFromSourceCodeFiles(file, aimContract):
         except Exception as e:
             print(e)
 
-    # print(binaryAnalyzer.aimDisasmCode)
-    # print(binaryAnalyzer.aimContractEndPos)
-    # print(binaryAnalyzer.disasmCode)
-
-    binaryAnalyzer.MCFGConstruction()
-
 
 def main():
     start_time = time.time()  # 计时开始
     # 从源代码检测缺陷
-    file = "dos/1.sol"
+    file = "timestamps/1.sol"
     parserFromSourceCodeFiles(file, "Test2")
     # 文件夹下检测
     # filePath = "timestamps/"
