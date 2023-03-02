@@ -81,16 +81,16 @@ def parserFromSourceCodeFiles(file, aimContract):
 def main():
     start_time = time.time()  # 计时开始
     # 从源代码检测缺陷
-    file = "timestamps/1.sol"
-    parserFromSourceCodeFiles(file, "Test2")
+    # file = "timestamps/1.sol"
+    # parserFromSourceCodeFiles(file, "Test2")
     # 文件夹下检测
-    # filePath = "timestamps/"
-    # pathList = os.listdir(filePath)
-    # pathList.sort()
-    # for fileName in pathList:
-    #     print(fileName)
-    #     file = filePath + fileName
-    #     parserFromSourceCodeFiles(file, "Test2")
+    filePath = "timestamps/"
+    pathList = os.listdir(filePath)
+    pathList.sort()
+    for fileName in pathList:
+        print(fileName)
+        file = filePath + fileName
+        parserFromSourceCodeFiles(file, "Test2")
     end_time = time.time()  # 计时结束
     print(f"Running time: {end_time - start_time:.2f} s")  # 输出总运行时间
 
