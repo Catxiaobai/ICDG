@@ -80,10 +80,10 @@ class EvmSimulator:
 
         elif block.jumpType == BasicBlock.CROSS:
             left_branch = block.calledFunctionJumpPos  # 左分支跳转位置
-            if left_branch == -1:  # 如果左分支跳转位置无效
-                return
+            # if left_branch == -1:  # 如果左分支跳转位置无效
+            #     return
             # 标记已访问过的边，递归执行左分支区块
-            if self.flagVisEdge(block.startBlockPos, left_branch):
+            if left_branch != -1 and self.flagVisEdge(block.startBlockPos, left_branch):
                 self.dfsExeBlock(self.pos2BlockMap.get(left_branch), block.evmStack)
 
             right_branch = block.fallPos  # 右分支跳转位置
@@ -183,7 +183,6 @@ class EvmSimulator:
                 legalInstr = False
 
         elif instr in {'CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL'}:
-            # print('----------------CALL的跨合约跳转时的栈信息', evmStack)
             if len(evmStack) >= 7:
                 outgas = evmStack.pop()
                 recipient = evmStack.pop()

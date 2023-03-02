@@ -53,20 +53,6 @@ class BasicBlock:
 
     # 输出基本块信息
     def infoPrint(self):
-        # print(self.startBlockPos)
-        # print(self.endBlockPos)
-        # print(self.instrList)
-        # print(self.evmStack)
-        # print(self.instrList)
-        # print(self.fallPos)
-        # print(self.conditionalJumpPos)
-        # print(self.conditionalJumpExpression)
-        # print(self.unconditionalJumpPos)
-        # print(self.jumpType)
-        # print(self.isCircle)
-        # print(self.isCircleStart)
-        # print(self.moneyCall)
-        # print(self.function)
-        # print(self.callJumpPos)
+        print('--------------------------基本块: ', self.startBlockPos)
         for attr in self.__dict__:
             print(self.__dict__[attr])

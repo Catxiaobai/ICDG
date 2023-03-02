@@ -9,7 +9,7 @@ contract Test1 {
 }
 
 contract Test2 {
-    function transferMoney(Test1 t1, address addr) public{
+    function transferMoney(Test1 t1, address addr) public payable{
         uint256 goal = t1.getGoal();
         if (3000 < goal) {
             while (true) {

@@ -9,7 +9,6 @@ contract Victim {
 
     function executeTransaction() public view{
         require(msg.sender == owner);
-        // 执行转账操作等
     }
 }
 

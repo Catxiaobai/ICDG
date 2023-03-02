@@ -1,7 +1,7 @@
 pragma solidity >=0.4.19 <0.6.0;
 
 contract Test1 {
-    uint256 public goal = 5000;
+    uint256 public goal = 1000;
 
     function getGoal() public view returns (uint256) {
         return goal;
@@ -9,7 +9,7 @@ contract Test1 {
 }
 
 contract Test2 {
-    function transferMoney(Test1 t1, address addr) public{
+    function transferMoney(Test1 t1, address addr) public payable{
         uint256 goal = t1.getGoal();
         if (3000 < goal) {
             while (true) {
