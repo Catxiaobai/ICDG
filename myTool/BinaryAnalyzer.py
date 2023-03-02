@@ -14,7 +14,7 @@ from graphviz import Digraph  # 导入graphviz库
 
 class BinaryAnalyzer:
     def __init__(self):
-        self.pos2BlockMap = {}  # 记录每个代码块的开始位置和结束位置
+        self.pos2BlockMap = {}  # 记录每个代码块的开始位置和基本块信息
         self.publicFunctionStartList = []  # 所有其他函数可以调用的函数列表（不包括回退函数）
         self.stackEvents = []  # 栈事件
         self.allInstrs = set()  # 所有的操作指令集合
@@ -309,10 +309,10 @@ class BinaryAnalyzer:
             # value.infoPrint()
             if value.function != 'NULL':
                 graph.node(str(value.startBlockPos), color='blue')
-            if 'TIMESTAMP' in value.instrString:
-                graph.node(str(value.startBlockPos), color='red')
-            if 'TIMESTAMP' in value.conditionalJumpExpression:
-                print('有时间戳漏洞')
+            # if 'TIMESTAMP' in value.instrString:
+            #     graph.node(str(value.startBlockPos), color='red')
+            # if 'TIMESTAMP' in value.conditionalJumpExpression:
+            #     print('有时间戳漏洞')
             else:
                 graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
