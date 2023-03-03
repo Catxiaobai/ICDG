@@ -217,7 +217,8 @@ class EvmSimulator:
                             # 未能解析出跳转地址，报错
                             print(f"Error CALL on: {current_PC}")
                             self.misRecognizedJump = True
-
+                    else:
+                        print('--------------------转账----------------------------')
                 result = instr + "_" + str(current_PC)
                 evmStack.append(result)
             else:

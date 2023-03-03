@@ -342,4 +342,4 @@ class BinaryAnalyzer:
         # 检测代码块的特征
         self.detectBlockFeatures()
         # myTool:绘制cfg图
-        self.drawCFG()
+        # self.drawCFG()
