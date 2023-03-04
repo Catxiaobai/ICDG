@@ -309,8 +309,8 @@ class BinaryAnalyzer:
             # value.infoPrint()
             if value.function != 'NULL':
                 graph.node(str(value.startBlockPos), color='blue')
-            # if 'TIMESTAMP' in value.instrString:
-            #     graph.node(str(value.startBlockPos), color='red')
+            if 'TIMESTAMP' in value.instrString:
+                graph.node(str(value.startBlockPos), color='red')
             # if 'TIMESTAMP' in value.conditionalJumpExpression:
             #     print('有时间戳漏洞')
             else:

@@ -192,11 +192,13 @@ class EvmSimulator:
                 start_data_output = evmStack.pop()
                 size_data_ouput = evmStack.pop()
                 currentBlock.moneyCall = True
+
                 if utils.getType(transfer_amount) == utils.DIGITAL:
                     amount = int(transfer_amount.split("_")[0])
                     if amount == 0:
                         currentBlock.moneyCall = False
                         # todo：不是转账，跨合约调用，进行分析连接
+                        # print('--------------------函数调用----------------------------')
                         legalJump = False
                         aim = evmStack[-2]
                         # print('目标函数跳转位置', aim.split('_')[0])
@@ -217,8 +219,9 @@ class EvmSimulator:
                             # 未能解析出跳转地址，报错
                             print(f"Error CALL on: {current_PC}")
                             self.misRecognizedJump = True
-                    else:
-                        print('--------------------转账----------------------------')
+                else:
+                    # print('--------------------转账----------------------------')
+                    pass
                 result = instr + "_" + str(current_PC)
                 evmStack.append(result)
             else:
