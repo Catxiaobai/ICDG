@@ -5,7 +5,6 @@ contract Test2 {
         uint256 goal_ = t1.getGoal();
         if (3000 < goal_) {
             if (now % 15 == 0) {
-                // winner    //bug
                 msg.sender.transfer(goal_);
             }
         } else {
