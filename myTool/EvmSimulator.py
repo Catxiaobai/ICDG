@@ -88,10 +88,9 @@ class EvmSimulator:
 
         elif block.jumpType == BasicBlock.CROSS:
             left_branch = block.calledFunctionJumpPos  # 左分支跳转位置
-            # if left_branch == -1:  # 如果左分支跳转位置无效
-            #     return
-            # 添加前缀节点
-            self.pos2BlockMap[left_branch].prefixBlock.add(block.startBlockPos)
+            if left_branch != -1:  # 如果左分支跳转位置无效
+                # 添加前缀节点
+                self.pos2BlockMap[left_branch].prefixBlock.add(block.startBlockPos)
             # 标记已访问过的边，递归执行左分支区块
             if left_branch != -1 and self.flagVisEdge(block.startBlockPos, left_branch):
                 self.dfsExeBlock(self.pos2BlockMap.get(left_branch), block.evmStack)
