@@ -51,6 +51,9 @@ class BasicBlock:
         self.terminalJumpPos = -1  # 结束块跳转位置
         self.isEndBlock = False  # 是否是结束块
 
+        # 添加前缀节点块，便于前向搜索
+        self.prefixBlock = set()
+
     # 输出基本块信息
     def infoPrint(self):
         print('--------------------------基本块: ', self.startBlockPos)

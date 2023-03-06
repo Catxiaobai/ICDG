@@ -51,11 +51,15 @@ class EvmSimulator:
             left_branch = block.conditionalJumpPos  # 左分支跳转位置
             if left_branch == -1:  # 如果左分支跳转位置无效
                 return
+            # 添加前缀节点
+            self.pos2BlockMap[left_branch].prefixBlock.add(block.startBlockPos)
             # 标记已访问过的边，递归执行左分支区块
             if self.flagVisEdge(block.startBlockPos, left_branch):
                 self.dfsExeBlock(self.pos2BlockMap.get(left_branch), block.evmStack)
 
             right_branch = block.fallPos  # 右分支跳转位置
+            # 添加前缀节点
+            self.pos2BlockMap[right_branch].prefixBlock.add(block.startBlockPos)
             # 标记已访问过的边，递归执行右分支区块
             if self.flagVisEdge(block.startBlockPos, right_branch):
                 self.dfsExeBlock(self.pos2BlockMap.get(right_branch), block.evmStack)
@@ -64,12 +68,16 @@ class EvmSimulator:
             jumpPos = block.unconditionalJumpPos  # 跳转位置
             if jumpPos == -1:  # 如果跳转位置无效
                 return
+            # 添加前缀节点
+            self.pos2BlockMap[jumpPos].prefixBlock.add(block.startBlockPos)
             # 标记已访问过的边，递归执行跳转位置指向的区块
             if self.flagVisEdge(block.startBlockPos, jumpPos):
                 self.dfsExeBlock(self.pos2BlockMap.get(jumpPos), block.evmStack)
 
         elif block.jumpType == BasicBlock.FALL:  # 跳转到块末尾
             jumpPos = block.fallPos  # 跳转位置
+            # 添加前缀节点
+            self.pos2BlockMap[jumpPos].prefixBlock.add(block.startBlockPos)
             # 标记已访问过的边，递归执行跳转位置指向的区块
             if self.flagVisEdge(block.startBlockPos, jumpPos):
                 self.dfsExeBlock(self.pos2BlockMap.get(jumpPos), block.evmStack)
@@ -82,11 +90,15 @@ class EvmSimulator:
             left_branch = block.calledFunctionJumpPos  # 左分支跳转位置
             # if left_branch == -1:  # 如果左分支跳转位置无效
             #     return
+            # 添加前缀节点
+            self.pos2BlockMap[left_branch].prefixBlock.add(block.startBlockPos)
             # 标记已访问过的边，递归执行左分支区块
             if left_branch != -1 and self.flagVisEdge(block.startBlockPos, left_branch):
                 self.dfsExeBlock(self.pos2BlockMap.get(left_branch), block.evmStack)
 
             right_branch = block.fallPos  # 右分支跳转位置
+            # 添加前缀节点
+            self.pos2BlockMap[right_branch].prefixBlock.add(block.startBlockPos)
             # 标记已访问过的边，递归执行右分支区块
             if self.flagVisEdge(block.startBlockPos, right_branch):
                 self.dfsExeBlock(self.pos2BlockMap.get(right_branch), block.evmStack)
@@ -218,7 +230,7 @@ class EvmSimulator:
                         # 如果跳转位置是一个JUMPDEST，则跳转合法
                         elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
                             self.pos2BlockMap[currentBlockID].calledFunctionJumpPos = jumpPos
-                            self.pos2BlockMap[currentBlockID].infoPrint()
+                            # self.pos2BlockMap[currentBlockID].infoPrint()
                             legalJump = True
                         self.pos2BlockMap[self.functionPosMap['STOP']].calledFunctionJumpPos = self.pos2BlockMap[
                             currentBlockID].fallPos

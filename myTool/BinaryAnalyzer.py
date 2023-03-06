@@ -316,8 +316,8 @@ class BinaryAnalyzer:
             if 'TIMESTAMP' in value.conditionalJumpExpression:
                 graph.node(str(value.startBlockPos), color='red')
             # 整数溢出相关
-            if 'ADD' in value.instrString:
-                graph.node(str(value.startBlockPos), color='red')
+            # if 'ADD' in value.instrString:
+            #     graph.node(str(value.startBlockPos), color='red')
             else:
                 graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
