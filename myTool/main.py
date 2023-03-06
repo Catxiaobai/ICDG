@@ -24,7 +24,9 @@ def parserFromAimBytecode(bytecode):
 
     # 只需要运行时字节码，去除合约创建字节码
     if 'f30060806040' in bytecode:
+        createBytecode = bytecode[:bytecode.index('f30060806040') + 4]
         bytecode = bytecode[bytecode.index('f30060806040') + 4:]
+        print(createBytecode)
 
     return bytecode
 
@@ -40,7 +42,7 @@ def parserFromSourceCodeFiles(file, aimContract):
     :param aimContract: 待检测合约
     """
     # 用 solc 编译合约源代码，获取其二进制代码
-    cmd = ['solc', '--bin-runtime', file]
+    cmd = ['solc', '--bin', '--optimize', file]
     try:
         binary = subprocess.check_output(cmd).decode()
     except subprocess.CalledProcessError as e:

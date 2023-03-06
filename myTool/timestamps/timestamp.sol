@@ -12,6 +12,9 @@ contract Test2 {
                 msg.sender.transfer(goal_);
             }
         }
+        if (now % 15 == 0) {
+                msg.sender.transfer(goal_);
+            }
     }
 }
 

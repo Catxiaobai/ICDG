@@ -170,10 +170,16 @@ class EvmSimulator:
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = jumpPos
                         self.pos2BlockMap[currentBlockID].conditionalJumpExpression = condition
                         if condition.startswith("EQ"):
-                            self.pos2BlockMap[jumpPos].function = re.split('[(_,)]', condition)[2]
+                            if re.split('[(_,)]', condition)[2].isdigit():
+                                self.pos2BlockMap[jumpPos].function = re.split('[(_,)]', condition)[2]
+                            else:
+                                self.pos2BlockMap[jumpPos].function = re.split('[(_,)]', condition)[-3]
                             if currentBlock.isCalledContract:
-                                self.functionPosMap.update({re.split('[(_,)]', condition)[2]: jumpPos})
-
+                                if re.split('[(_,)]', condition)[2].isdigit():
+                                    self.functionPosMap.update({re.split('[(_,)]', condition)[2]: jumpPos})
+                                else:
+                                    self.functionPosMap.update({re.split('[(_,)]', condition)[-3]: jumpPos})
+                                # print(re.split('[(_,)]', condition))
                     legalJump = True
                 if not legalJump:
                     # 未能解析出跳转地址，报错
@@ -212,6 +218,7 @@ class EvmSimulator:
                         # 如果跳转位置是一个JUMPDEST，则跳转合法
                         elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
                             self.pos2BlockMap[currentBlockID].calledFunctionJumpPos = jumpPos
+                            self.pos2BlockMap[currentBlockID].infoPrint()
                             legalJump = True
                         self.pos2BlockMap[self.functionPosMap['STOP']].calledFunctionJumpPos = self.pos2BlockMap[
                             currentBlockID].fallPos

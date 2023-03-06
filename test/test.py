@@ -1,4 +1,6 @@
 import re
 
 s = 'EQ_60(17025323_55,AND_53(4294967295_48,DIV_47(CALLDATALOAD_15(0_13),PUSH29_16)))'
-print(re.split('[(_,)]', s)[2])
+s1 = 'EQ_307(AND_300(DIV_299(CALLDATALOAD_298(0_296),PUSH29_266),4294967295_261),1075394691_301)'
+
+print(re.split('[(_,)]', s1)[-3])

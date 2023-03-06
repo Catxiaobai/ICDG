@@ -308,7 +308,7 @@ class BinaryAnalyzer:
         for key, value in self.pos2BlockMap.items():
             # value.infoPrint()
             # 标记颜色
-            if value.function != 'NULL':
+            if value.function.isdigit():
                 graph.node(str(value.startBlockPos), color='blue')
             # 时间戳相关
             if 'TIMESTAMP' in value.instrString:
