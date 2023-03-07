@@ -38,6 +38,7 @@ class BinaryAnalyzer:
         # 目标函数的结束位置
         self.aimContractEndPos = -1
         self.aimDisasmCode = ''
+        self.prefixTemp = set()
 
     def infoPrint(self):
         for attr in self.__dict__:
@@ -105,6 +106,8 @@ class BinaryAnalyzer:
                 if instr == 'STOP':
                     if block.startBlockPos == self.aimContractEndPos - 2 or i == len(self.disasm) - 1:
                         block.isEndBlock = True
+                        block.prefixBlock = self.prefixTemp.copy()
+                        self.prefixTemp.clear()
                     else:
                         block.isEndBlock = False
                 if not block.isEndBlock:
@@ -112,6 +115,7 @@ class BinaryAnalyzer:
                         block.terminalJumpPos = self.aimContractEndPos - 2
                     else:
                         block.terminalJumpPos = self.disasm[-1][0]
+                    self.prefixTemp.add(block.startBlockPos)
             # 将指令对添加到块的指令列表中，并将指令添加到块的指令字符串中
             block.instrList.append(instr_pair)
             block.instrString += instr + " "
@@ -321,14 +325,22 @@ class BinaryAnalyzer:
             else:
                 graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
+                if value.isCallFunction:
+                    graph.edge(str(value.startBlockPos), str(value.fallPos), color='green')
                 graph.edge(str(value.startBlockPos), str(value.fallPos))
             if value.conditionalJumpPos != -1:
+                if value.isCallFunction:
+                    graph.edge(str(value.startBlockPos), str(value.conditionalJumpPos), color='green')
                 graph.edge(str(value.startBlockPos), str(value.conditionalJumpPos))
             if value.unconditionalJumpPos != -1:
+                if value.isCallFunction:
+                    graph.edge(str(value.startBlockPos), str(value.unconditionalJumpPos), color='green')
                 graph.edge(str(value.startBlockPos), str(value.unconditionalJumpPos))
             if value.calledFunctionJumpPos != -1:
                 graph.edge(str(value.startBlockPos), str(value.calledFunctionJumpPos), color='green')
             if value.terminalJumpPos != -1:
+                if value.isCallFunction:
+                    graph.edge(str(value.startBlockPos), str(value.terminalJumpPos), color='green')
                 graph.edge(str(value.startBlockPos), str(value.terminalJumpPos))
         # graph.view()
         graph.render('cfg', view=True)

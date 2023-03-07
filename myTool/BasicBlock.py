@@ -34,11 +34,12 @@ class BasicBlock:
         self.instrString = ''  # 当前基本块的指令字符串
 
         # 下面是关于跳转的一些变量
+        self.jumpType = 3  # 跳转类型，1表示有条件跳转，2表示无条件跳转，3表示顺序执行，4表示终止执行，5表示跨合约调用跳转
         self.fallPos = -1  # 当前基本块执行完后跳转的位置
         self.conditionalJumpPos = -1  # 有条件跳转的目标位置
         self.conditionalJumpExpression = ""  # 有条件跳转的条件表达式
         self.unconditionalJumpPos = -1  # 无条件跳转的目标位置
-        self.jumpType = 3  # 跳转类型，1表示有条件跳转，2表示无条件跳转，3表示顺序执行，4表示终止执行，5表示跨合约调用跳转
+
         self.isCircle = False  # 是否形成了循环
         self.isCircleStart = False  # 是否是循环的起点
         self.moneyCall = False  # 是否调用了合约中的send或transfer方法
@@ -46,10 +47,11 @@ class BasicBlock:
         # 关于call跨合约调用相关
         self.function = "NULL"  # 标记该基本块属于哪个函数
         self.callJumpPos = -1  # 跨合约跳转起始位置
-        self.isCalledContract = False  # 是否为被调用合约
         self.calledFunctionJumpPos = -1  # 被调用合约目标函数位置
         self.terminalJumpPos = -1  # 结束块跳转位置
         self.isEndBlock = False  # 是否是结束块
+        self.isCalledContract = False  # 是否为被调用合约
+        self.isCallFunction = False  # 被调用函数
 
         # 添加前缀节点块，便于前向搜索
         self.prefixBlock = set()

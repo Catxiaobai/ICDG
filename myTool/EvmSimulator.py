@@ -122,7 +122,6 @@ class EvmSimulator:
         currentBlockID = currentBlock.startBlockPos
         instr = instr_pair[1][0]
         current_PC = instr_pair[0]
-        # print('currentBlockID:', currentBlockID)
         legalInstr = True
         # 每条指令以 "指令名_指令位置" 的格式压入EVM栈中
         if instr == "JUMP":
@@ -130,14 +129,12 @@ class EvmSimulator:
                 # 获取跳转位置
                 address = evmStack.pop()
                 legalJump = False
-                # print('jumpAddress: ', address)
                 # 判断跳转位置是否合法
                 if utils.getType(address) == utils.DIGITAL:
                     jumpPos = int(address.split("_")[0])
                     if currentBlock.isCalledContract:
                         jumpPos += currentBlock.callJumpPos
-                    # print('jump的pos: ', jumpPos)
-                    # print(currentBlock.infoPrint())
+
                     # 如果跳转位置是0或者不在pos2BlockMap中，则跳转不合法
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         self.pos2BlockMap[currentBlockID].unconditionalJumpPos = -1
@@ -147,6 +144,10 @@ class EvmSimulator:
                     elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
                         self.pos2BlockMap[currentBlockID].unconditionalJumpPos = jumpPos
                         legalJump = True
+                        # 将jumpPos标记为被调用函数
+                        if self.pos2BlockMap[currentBlockID].isCallFunction:
+                            self.pos2BlockMap[jumpPos].isCallFunction = True
+
                 # 跳转不合法，打印错误信息
                 if not legalJump:
                     print(f"Cannot Recognize Jump Pos \"{address}\" on PC: {current_PC}")
@@ -167,19 +168,19 @@ class EvmSimulator:
                 if utils.getType(address) == utils.DIGITAL:
                     # 解析跳转位置
                     jumpPos = int(address.split("_")[0])
-                    # print('jumpPos: ', jumpPos)
-                    # currentBlock.infoPrint()
                     if currentBlock.isCalledContract:
                         jumpPos += currentBlock.callJumpPos
                     if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.versionGap = True
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = -1
+                        legalJump = True
                         self.pos2BlockMap[currentBlockID].conditionalJumpExpression = condition
                     elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
                         # 设置当前块的有条件跳转位置和条件表达式
                         self.pos2BlockMap[currentBlockID].conditionalJumpPos = jumpPos
                         self.pos2BlockMap[currentBlockID].conditionalJumpExpression = condition
+                        legalJump = True
                         if condition.startswith("EQ"):
                             if re.split('[(_,)]', condition)[2].isdigit():
                                 self.pos2BlockMap[jumpPos].function = re.split('[(_,)]', condition)[2]
@@ -191,7 +192,10 @@ class EvmSimulator:
                                 else:
                                     self.functionPosMap.update({re.split('[(_,)]', condition)[-3]: jumpPos})
                                 # print(re.split('[(_,)]', condition))
-                    legalJump = True
+                        # 将jumpPos标记为被调用函数
+                        if self.pos2BlockMap[currentBlockID].isCallFunction:
+                            self.pos2BlockMap[jumpPos].isCallFunction = True
+
                 if not legalJump:
                     # 未能解析出跳转地址，报错
                     print(f"Error JUMPI on: {current_PC}")
@@ -213,14 +217,12 @@ class EvmSimulator:
                 if utils.getType(transfer_amount) == utils.DIGITAL:
                     amount = int(transfer_amount.split("_")[0])
                     if amount == 0:
+                        # 调用
                         currentBlock.moneyCall = False
-                        # todo：不是转账，跨合约调用，进行分析连接
-                        # print('--------------------函数调用----------------------------')
                         legalJump = False
                         aim = evmStack[-2]
-                        # print('目标函数跳转位置', aim.split('_')[0])
+
                         jumpPos = int(self.functionPosMap[aim.split('_')[0]])
-                        # print('jump: ', jumpPos)
                         # 如果跳转位置是0或者不在pos2BlockMap中，则跳转不合法
                         if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                             self.pos2BlockMap[currentBlockID].calledFunctionJumpPos = -1
@@ -229,16 +231,20 @@ class EvmSimulator:
                         # 如果跳转位置是一个JUMPDEST，则跳转合法
                         elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
                             self.pos2BlockMap[currentBlockID].calledFunctionJumpPos = jumpPos
-                            # self.pos2BlockMap[currentBlockID].infoPrint()
                             legalJump = True
-                        self.pos2BlockMap[self.functionPosMap['STOP']].calledFunctionJumpPos = self.pos2BlockMap[
-                            currentBlockID].fallPos
+                            # 将jumpPos标记为被调用函数
+                            self.pos2BlockMap[jumpPos].isCallFunction = True
                         if not legalJump:
                             # 未能解析出跳转地址，报错
                             print(f"Error CALL on: {current_PC}")
                             self.misRecognizedJump = True
+
+                        # 标记调用返回边
+                        self.pos2BlockMap[self.functionPosMap['STOP']].calledFunctionJumpPos = self.pos2BlockMap[
+                            currentBlockID].fallPos
+                        self.pos2BlockMap[self.functionPosMap['STOP']].isCallFunction = True
                 else:
-                    # print('--------------------转账----------------------------')
+                    # 转账
                     pass
                 result = instr + "_" + str(current_PC)
                 evmStack.append(result)
