@@ -84,8 +84,15 @@ class EvmSimulator:
 
         # 增加块终止和跨合约跳转
         elif block.jumpType == BasicBlock.TERMINAL:  # 块终止
-            if self.pos2BlockMap[block.terminalJumpPos].isCallFunction:
+            jumpPos = block.terminalJumpPos
+            if jumpPos == -1:  # 如果跳转位置无效
+                return
+            if self.pos2BlockMap[jumpPos].isCallFunction:
                 self.pos2BlockMap[block.startBlockPos].isCallFunction = True
+            # 添加前缀节点
+            self.pos2BlockMap[jumpPos].prefixBlock.add(block.startBlockPos)
+            if self.flagVisEdge(block.startBlockPos, jumpPos):
+                self.dfsExeBlock(self.pos2BlockMap.get(jumpPos), block.evmStack)
 
         elif block.jumpType == BasicBlock.CROSS:
             left_branch = block.calledFunctionJumpPos  # 左分支跳转位置
@@ -244,6 +251,9 @@ class EvmSimulator:
                         self.pos2BlockMap[self.functionPosMap['STOP']].calledFunctionJumpPos = self.pos2BlockMap[
                             currentBlockID].fallPos
                         self.pos2BlockMap[self.functionPosMap['STOP']].isCallFunction = True
+                        # 添加前缀节点
+                        self.pos2BlockMap[currentBlock.fallPos].prefixBlock.add(
+                            self.pos2BlockMap[self.functionPosMap['STOP']].startBlockPos)
                 else:
                     # 转账
                     pass
