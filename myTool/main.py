@@ -26,7 +26,7 @@ def parserFromAimBytecode(bytecode):
     if 'f30060806040' in bytecode:
         createBytecode = bytecode[:bytecode.index('f30060806040') + 4]
         bytecode = bytecode[bytecode.index('f30060806040') + 4:]
-        print(createBytecode)
+        # print(createBytecode)
 
     return bytecode
 
