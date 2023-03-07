@@ -84,7 +84,8 @@ class EvmSimulator:
 
         # 增加块终止和跨合约跳转
         elif block.jumpType == BasicBlock.TERMINAL:  # 块终止
-            pass
+            if self.pos2BlockMap[block.terminalJumpPos].isCallFunction:
+                self.pos2BlockMap[block.startBlockPos].isCallFunction = True
 
         elif block.jumpType == BasicBlock.CROSS:
             left_branch = block.calledFunctionJumpPos  # 左分支跳转位置
