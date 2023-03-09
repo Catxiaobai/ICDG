@@ -325,10 +325,13 @@ class BinaryAnalyzer:
             else:
                 graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
-                if value.isCallFunction:
-                    graph.edge(str(value.startBlockPos), str(value.fallPos), color='green')
+                if value.calledFunctionJumpPos != -1:
+                    graph.edge(str(value.startBlockPos), str(value.fallPos), style='dashed')
                 else:
-                    graph.edge(str(value.startBlockPos), str(value.fallPos))
+                    if value.isCallFunction:
+                        graph.edge(str(value.startBlockPos), str(value.fallPos), color='green')
+                    else:
+                        graph.edge(str(value.startBlockPos), str(value.fallPos))
             if value.conditionalJumpPos != -1:
                 if value.isCallFunction:
                     graph.edge(str(value.startBlockPos), str(value.conditionalJumpPos), color='green')
@@ -346,6 +349,7 @@ class BinaryAnalyzer:
                     graph.edge(str(value.startBlockPos), str(value.terminalJumpPos), color='green')
                 else:
                     graph.edge(str(value.startBlockPos), str(value.terminalJumpPos))
+
         # graph.view()
         graph.render('cfg', view=True)
 
