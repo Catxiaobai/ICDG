@@ -315,13 +315,13 @@ class BinaryAnalyzer:
             if value.function.isdigit():
                 graph.node(str(value.startBlockPos), color='blue')
             # 时间戳相关
-            if 'TIMESTAMP' in value.instrString:
-                graph.node(str(value.startBlockPos), color='green')
-            if 'TIMESTAMP' in value.conditionalJumpExpression:
-                graph.node(str(value.startBlockPos), color='red')
-            # 整数溢出相关
-            # if 'ADD' in value.instrString:
+            # if 'TIMESTAMP' in value.instrString:
+            #     graph.node(str(value.startBlockPos), color='green')
+            # if 'TIMESTAMP' in value.conditionalJumpExpression:
             #     graph.node(str(value.startBlockPos), color='red')
+            # 整数溢出相关
+            if 'ADD' in value.instrString:
+                graph.node(str(value.startBlockPos), color='red')
             else:
                 graph.node(str(value.startBlockPos))
             if value.fallPos != -1:

@@ -45,7 +45,7 @@ class BasicBlock:
         self.moneyCall = False  # 是否调用了合约中的send或transfer方法
 
         # 关于call跨合约调用相关
-        self.function = "NULL"  # 标记该基本块属于哪个函数
+        self.function = "NULL"  # 标记该基本块属于哪个函数入口
         self.callJumpPos = -1  # 跨合约跳转起始位置
         self.calledFunctionJumpPos = -1  # 被调用合约目标函数位置
         self.terminalJumpPos = -1  # 结束块跳转位置
