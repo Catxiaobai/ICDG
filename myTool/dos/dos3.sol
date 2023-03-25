@@ -1,20 +1,18 @@
 pragma solidity >=0.4.19 <0.6.0;
 
 contract Test1 {
-    uint256 public goal = 1000;
-
-    function getGoal() public view returns (uint256) {
-        return goal;
+    function getGoal() public pure returns (uint256) {
+        return 5000;
     }
 }
 
 contract Test2 {
-    function transferMoney(Test1 t1, address addr) public payable{
+    function transferMoney(Test1 t1, address addr) public payable {
+    uint256 x=10;
+    	while(x>0){
+    	x--;
+    	}
         uint256 goal = t1.getGoal();
-        if (3000 < goal) {
-            while (true) {
-                addr.transfer(0.1 ether);
-            }
-        }
+
     }
 }

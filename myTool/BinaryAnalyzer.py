@@ -256,8 +256,42 @@ class BinaryAnalyzer:
             pass
 
         elif block.jumpType == BasicBlock.CROSS:
-            # 处理跨合约
-            pass
+            # 处理条件跳转的左分支
+            left_branch = block.calledFunctionJumpPos
+            path = f"{block.startBlockPos}_{left_branch}"
+            self.totalEdge.add(path)
+
+            # 如果左分支未被访问，则继续寻找
+            if path not in visited and left_branch > 0:
+                # 将左分支加入当前路径，然后递归调用函数查找调用路径和循环
+                visited.add(path)
+                newPath = currentPath.copy()
+                newPath.append(left_branch)
+                self.findCallPathAndLoops(newPath, self.pos2BlockMap[left_branch], visited)
+            # 如果左分支已经在已知的环路上，则将该环路标记为循环
+            elif path in self.allCirclePath2StartPos:
+                self.flagLoop(currentPath, self.allCirclePath2StartPos[path])
+            # 如果左分支指向当前路径中的某一代码块，则将该路径标记为循环
+            elif left_branch > 0 and left_branch in currentPath:
+                self.flagLoop(currentPath, block.startBlockPos)
+
+            # 处理条件跳转的右分支
+            right_branch = block.fallPos
+            path = f"{block.startBlockPos}_{right_branch}"
+            self.totalEdge.add(path)
+            # 如果右分支未被访问，则继续寻找
+            if path not in visited and right_branch > 0:
+                # 将右分支加入当前路径，然后递归调用函数查找调用路径和循环
+                visited.add(path)
+                newPath = currentPath.copy()
+                newPath.append(right_branch)
+                self.findCallPathAndLoops(newPath, self.pos2BlockMap[right_branch], visited)
+            # 如果右分支已经在已知的环路上，则将该环路标记为循环
+            elif path in self.allCirclePath2StartPos:
+                self.flagLoop(currentPath, self.allCirclePath2StartPos[path])
+            # 如果右分支指向当前路径中的某一代码块，则将该路径标记为循环
+            elif right_branch > 0 and right_branch in currentPath:
+                self.flagLoop(currentPath, block.startBlockPos)
 
     def detectBlockFeatures(self):
         block = self.pos2BlockMap.get(0)
@@ -322,6 +356,9 @@ class BinaryAnalyzer:
             # 整数溢出相关
             if 'ADD' in value.instrString:
                 graph.node(str(value.startBlockPos), color='red')
+            # 循环
+            # if value.isCircle:
+            #     graph.node(str(value.startBlockPos), color='red')
             else:
                 graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
