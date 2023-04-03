@@ -345,7 +345,7 @@ class BinaryAnalyzer:
                         False)
         for key, value in self.pos2BlockMap.items():
             # value.infoPrint()
-            # 标记颜色
+            # 函数入口标记
             if value.function.isdigit():
                 graph.node(str(value.startBlockPos), color='blue')
             # 时间戳相关
@@ -354,16 +354,24 @@ class BinaryAnalyzer:
             # if 'TIMESTAMP' in value.conditionalJumpExpression:
             #     graph.node(str(value.startBlockPos), color='red')
             # 整数溢出相关
-            if 'ADD' in value.instrString:
-                graph.node(str(value.startBlockPos), color='red')
-            # 循环
-            # if value.isCircle:
+            if any(x in value.instrString for x in ['ADD', 'SUB', 'MUL', 'EXP']):
+                if 'RETURN' in value.instrString or 'PUSH29' in value.instrString:
+                    graph.node(str(value.startBlockPos))
+                else:
+                    graph.node(str(value.startBlockPos), color='red')
+            # 可重入相关
+            # if 'GAS CALL' in value.instrString and value.moneyCall is True:
             #     graph.node(str(value.startBlockPos), color='red')
+            # owner相关
+            # 循环
+            if value.isCircle:
+                graph.node(str(value.startBlockPos), color='red')
             else:
                 graph.node(str(value.startBlockPos))
             if value.fallPos != -1:
                 if value.calledFunctionJumpPos != -1:
-                    graph.edge(str(value.startBlockPos), str(value.fallPos), style='dashed')
+                    # graph.edge(str(value.startBlockPos), str(value.fallPos), style='dashed')
+                    pass
                 else:
                     if value.isCallFunction:
                         graph.edge(str(value.startBlockPos), str(value.fallPos), color='green')
