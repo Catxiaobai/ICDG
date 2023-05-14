@@ -269,7 +269,7 @@ class EvmSimulator:
             if len(evmStack) >= 2:
                 first = evmStack.pop()
                 second = evmStack.pop()
-                print('add的参数:', first, second)
+                # print('add的参数:', first, second)
                 if utils.getType(first) == utils.DIGITAL and utils.getType(second) == utils.DIGITAL:
                     # 如果弹出的两个操作数都是数字类型，则将其相加，并将结果重新压入栈中
                     res = int(first.split("_")[0]) + int(second.split("_")[0])

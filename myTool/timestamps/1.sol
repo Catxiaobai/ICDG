@@ -13,9 +13,9 @@ contract Test2 {
 }
 
 contract Test1 {
-    uint256 public goal = 5000;
+    //uint256 public goal = 5000;
 
-    function getGoal() public view returns (uint256) {
-        return goal;
+    function getGoal() public pure returns (uint256) {
+        return 5000;
     }
 }

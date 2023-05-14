@@ -83,7 +83,7 @@ def parserFromSourceCodeFiles(file, aimContract):
 def main():
     start_time = time.time()  # 计时开始
     # 从源代码检测缺陷
-    file = "overflow/1.sol"
+    file = "timestamps/1.sol"
     parserFromSourceCodeFiles(file, "Test2")
     # 文件夹下检测
     # filePath = "timestamps/"
