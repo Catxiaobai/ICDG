@@ -355,16 +355,16 @@ class BinaryAnalyzer:
             if 'SLOAD' in value.instrString:
                 sloadList.append(str(value.startBlockPos))
             # 时间戳相关
-            # if 'TIMESTAMP' in value.instrString:
-            #     graph.node(str(value.startBlockPos), color='green')
-            # if 'TIMESTAMP' in value.conditionalJumpExpression:
-            #     graph.node(str(value.startBlockPos), color='red')
+            if 'TIMESTAMP' in value.instrString:
+                graph.node(str(value.startBlockPos), color='green')
+            if 'TIMESTAMP' in value.conditionalJumpExpression:
+                graph.node(str(value.startBlockPos), color='red')
             # 整数溢出相关
-            if any(x in value.instrString for x in ['ADD', 'SUB', 'MUL', 'EXP']):
-                if 'RETURN' in value.instrString or 'PUSH29' in value.instrString:
-                    graph.node(str(value.startBlockPos))
-                else:
-                    graph.node(str(value.startBlockPos), color='red')
+            # if any(x in value.instrString for x in ['ADD', 'SUB', 'MUL', 'EXP']):
+            #     if 'RETURN' in value.instrString or 'PUSH29' in value.instrString:
+            #         graph.node(str(value.startBlockPos))
+            #     else:
+            #         graph.node(str(value.startBlockPos), color='red')
             # 可重入相关
             # if 'GAS CALL' in value.instrString and value.moneyCall is True:
             #     graph.node(str(value.startBlockPos), color='red')
