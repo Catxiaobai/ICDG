@@ -32,7 +32,8 @@ def generate_test_case():
 
 # 计算个体的适应度（覆盖的路径与目标路径之间的相似度）
 def calculate_fitness(individual, path, pos2BlockMap):
-    CALLDATA = hex(int(pos2BlockMap[path[0]].function)) + str(hex(individual['param1']))[2:] + str(hex(individual['param1']))[2:]
+    CALLDATA = hex(int(pos2BlockMap[path[0]].function)) + str(hex(individual['param1']))[2:] + str(
+        hex(individual['param1']))[2:]
     # 初始化
     cross_level = 0
     control_level = 0
@@ -48,7 +49,7 @@ def calculate_fitness(individual, path, pos2BlockMap):
         if pos2BlockMap[p].isCallFunction:
             cross_level -= 1
         if pos2BlockMap[p].conditionalJumpExpression != '':
-            cross_level -= 1
+            control_level -= 1
             # 开始计算适应度
             print(pos2BlockMap[p].conditionalJumpExpression)
     f = control_level + (1 - 1.01 ** -branch_distance)
@@ -97,7 +98,7 @@ def genetic_algorithm(path, pos2BlockMap):
     best_individual = min(population, key=lambda ind: ind['fitness'])
     if best_individual['fitness'] == 0:
         print("Target path is covered by the generated test case!")
-        return best_individual['test_case']
+        return 1
 
     for generation in range(max_generations):
         new_population = []
@@ -115,7 +116,7 @@ def genetic_algorithm(path, pos2BlockMap):
 
         if best_individual['fitness'] == 0:
             print("Target path is covered by the generated test case!")
-            return best_individual['test_case']
+            return 1
 
     print("Failed to cover the target path!")
-    return None
+    return 0
