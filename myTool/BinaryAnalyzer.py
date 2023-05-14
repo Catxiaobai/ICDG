@@ -331,7 +331,6 @@ class BinaryAnalyzer:
         self.cyclomaticComplexity = len(self.totalEdge) - len(self.visitBlock) + 2
         # 统计指令数量
         self.numInstrs = len(self.disasm)
-        # print("Start Detecting code smells")  # 开始检测代码异味
         # print('函数入口', self.publicFunctionStartList)
 
     # myTool:绘制CFG图
@@ -343,11 +342,18 @@ class BinaryAnalyzer:
                          'shape': 'box'},
                         {'color': '#999999', 'fontcolor': '#888888', 'fontsize': '10', 'fontname': 'FangSong'}, None,
                         False)
+        sstoreList = []
+        sloadList = []
         for key, value in self.pos2BlockMap.items():
             # value.infoPrint()
             # 函数入口标记
             if value.function.isdigit():
                 graph.node(str(value.startBlockPos), color='blue')
+            # 数据依赖边
+            if 'SSTORE' in value.instrString:
+                sstoreList.append(str(value.startBlockPos))
+            if 'SLOAD' in value.instrString:
+                sloadList.append(str(value.startBlockPos))
             # 时间戳相关
             # if 'TIMESTAMP' in value.instrString:
             #     graph.node(str(value.startBlockPos), color='green')
@@ -394,7 +400,10 @@ class BinaryAnalyzer:
                     graph.edge(str(value.startBlockPos), str(value.terminalJumpPos), color='green')
                 else:
                     graph.edge(str(value.startBlockPos), str(value.terminalJumpPos))
-
+        for ss in sstoreList:
+            for sl in sloadList:
+                if int(sl) > int(ss):
+                    graph.edge(ss, sl, style='dashed', color='yellow')
         # graph.view()
         graph.render('cfg', view=True)
 
