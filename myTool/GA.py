@@ -32,7 +32,7 @@ def generate_test_case():
 
 # 计算个体的适应度（覆盖的路径与目标路径之间的相似度）
 def calculate_fitness(individual, path, pos2BlockMap):
-    CALLDATA = '0x' + hex(int(pos2BlockMap[path[0]].function)).zfill(8) + hex(individual['param1'])[2:].zfill(32) + hex(
+    CALLDATA = '0x' + hex(int(pos2BlockMap[path[0]].function))[2:].zfill(8) + hex(individual['param1'])[2:].zfill(32) + hex(
         individual['param1'])[2:].zfill(32)
     # 初始化
     cross_level = 0
@@ -51,8 +51,9 @@ def calculate_fitness(individual, path, pos2BlockMap):
         if pos2BlockMap[p].conditionalJumpExpression != '':
             control_level -= 1
             # 开始计算适应度
-            # print(pos2BlockMap[p].conditionalJumpExpression)
+            print(pos2BlockMap[p].conditionalJumpExpression)
             print(CALLDATA)
+
     f = control_level + (1 - 1.01 ** -branch_distance)
     F = cross_level + (1 - 1.01 ** -f)
     return F
