@@ -9,11 +9,6 @@
 
 import random
 
-# 定义 CFG 图信息
-cfg_list = [(0, 13), (0, 1), (1, 2), (2, 3), (2, 4), (3, 5), (4, 6), (5, 7), (5, 8), (6, 9), (6, 10), (7, 11), (8, 11),
-            (9, 12), (10, 12), (11, 13)]
-aim_path = [0, 1, 2, 3, 5, 7, 11, 13]
-
 # 定义输入域范围（32位二进制编码）
 input_domain = {
     'param1': (0, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
@@ -27,33 +22,17 @@ max_generations = 10
 mutation_rate = 0.1
 
 
-# # 根据路径与ICDG计算初始的适应度
-# def calculate_initial_fitness(path, binaryAnalyzer):
-#
-#     for p in path:
-#         if binaryAnalyzer.pos2BlockMap[p].isCallFunction:
-#             cross_level += 1
-#         if binaryAnalyzer.pos2BlockMap[p].conditionalJumpExpression != "":
-#             control_level += 1
-#     branch_distance = path.size()
-#
-#     f = control_level + (1 - 1.01 ** -branch_distance)
-#     F = cross_level + (1 - 1.01 ** -f)
-#     return F
-
-
 # 生成随机的测试用例个体
 def generate_test_case():
     test_case = {}
     for param, (min_val, max_val) in input_domain.items():
         test_case[param] = random.randint(min_val, max_val)
-    print(test_case)
     return test_case
 
 
 # 计算个体的适应度（覆盖的路径与目标路径之间的相似度）
 def calculate_fitness(individual, path, pos2BlockMap):
-    CALLDATA = hex(int(path[0].function)) + str(hex(individual['param1']))[2:] + str(hex(individual['param1']))[2:]
+    CALLDATA = hex(int(pos2BlockMap[path[0]].function)) + str(hex(individual['param1']))[2:] + str(hex(individual['param1']))[2:]
     # 初始化
     cross_level = 0
     control_level = 0
