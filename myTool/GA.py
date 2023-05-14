@@ -51,8 +51,8 @@ def calculate_fitness(individual, path, pos2BlockMap):
         if pos2BlockMap[p].conditionalJumpExpression != '':
             control_level -= 1
             # 开始计算适应度
-            print(pos2BlockMap[p].conditionalJumpExpression)
-            print(CALLDATA)
+            # print(pos2BlockMap[p].conditionalJumpExpression)
+            # print(CALLDATA)
 
     f = control_level + (1 - 1.01 ** -branch_distance)
     F = cross_level + (1 - 1.01 ** -f)
