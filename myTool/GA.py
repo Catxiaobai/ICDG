@@ -36,7 +36,7 @@ def calculate_fitness(individual, path, pos2BlockMap):
     # 初始化
     cross_level = 0
     control_level = 0
-    branch_distance = path.size()
+    branch_distance = len(path)
     for p in path:
         if pos2BlockMap[p].isCallFunction:
             cross_level += 1
@@ -94,6 +94,10 @@ def genetic_algorithm(path, pos2BlockMap):
         test_case = generate_test_case()
         fitness = calculate_fitness(test_case, path, pos2BlockMap)
         population.append({'test_case': test_case, 'fitness': fitness})
+    best_individual = min(population, key=lambda ind: ind['fitness'])
+    if best_individual['fitness'] == 0:
+        print("Target path is covered by the generated test case!")
+        return best_individual['test_case']
 
     for generation in range(max_generations):
         new_population = []
@@ -106,7 +110,7 @@ def genetic_algorithm(path, pos2BlockMap):
 
         population = new_population
 
-        best_individual = max(population, key=lambda ind: ind['fitness'])
+        best_individual = min(population, key=lambda ind: ind['fitness'])
         print(f"Generation {generation + 1}: Best fitness = {best_individual['fitness']}")
 
         if best_individual['fitness'] == 0:
