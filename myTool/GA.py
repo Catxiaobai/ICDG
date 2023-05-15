@@ -20,7 +20,7 @@ input_domain = {
 population_size = 10
 max_generations = 10
 mutation_rate = 0.1
-
+crossover_rate = 0.5
 
 # 生成随机的测试用例个体
 def generate_test_case():
@@ -32,9 +32,10 @@ def generate_test_case():
 
 # 计算个体的适应度（覆盖的路径与目标路径之间的相似度）
 def calculate_fitness(individual, path, pos2BlockMap):
-    CALLDATA = '0x' + hex(int(pos2BlockMap[path[0]].function))[2:].zfill(8) + hex(individual['param1'])[2:].zfill(
-        32) + hex(
-        individual['param1'])[2:].zfill(32)
+    CALLDATA = '0x' + str(hex(int(pos2BlockMap[path[0]].function))[2:].zfill(8)) + str(
+        hex(individual['param1'])[2:].zfill(
+            32)) + str(hex(
+        individual['param1'])[2:].zfill(32))
     # 初始化
     cross_level = 0
     control_level = 0
@@ -54,17 +55,18 @@ def calculate_fitness(individual, path, pos2BlockMap):
             # 开始计算适应度
             # print(pos2BlockMap[p].conditionalJumpExpression)
             # print(CALLDATA)
-            if len(CALLDATA) == 64:
+            if len(CALLDATA) >= 64:
                 if CALLDATA[32:] == 'd8b934580fcE35a11B58C6D73aDeE468a2833fa8':
                     CALLDATA = CALLDATA[32:]
                 else:
                     break
-            if len(CALLDATA) == 32:
+            if len(CALLDATA) >= 32:
                 if CALLDATA[32:] + 3000 > 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff:
                     CALLDATA = CALLDATA[32:]
                 else:
                     break
-
+    print(individual)
+    print(branch_distance, cross_level, control_level)
     f = control_level + (1 - 1.01 ** -branch_distance)
     F = cross_level + (1 - 1.01 ** -f)
     return F
@@ -72,10 +74,9 @@ def calculate_fitness(individual, path, pos2BlockMap):
 
 # 选择操作（使用轮盘赌选择）
 def selection(population):
-    max_fitness = max(individual['fitness'] for individual in population)
-    adjusted_fitness = [max_fitness - individual['fitness'] for individual in population]
-    total_fitness = sum(adjusted_fitness)
-    probabilities = [fitness / total_fitness for fitness in adjusted_fitness]
+    fitness_values = [individual['fitness'] for individual in population]
+    total_fitness = sum(fitness_values)
+    probabilities = [fitness / total_fitness for fitness in fitness_values]
     selected = random.choices(population, probabilities, k=2)
     return selected[0], selected[1]
 
