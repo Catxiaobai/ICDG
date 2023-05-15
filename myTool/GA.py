@@ -32,7 +32,8 @@ def generate_test_case():
 
 # 计算个体的适应度（覆盖的路径与目标路径之间的相似度）
 def calculate_fitness(individual, path, pos2BlockMap):
-    CALLDATA = '0x' + hex(int(pos2BlockMap[path[0]].function))[2:].zfill(8) + hex(individual['param1'])[2:].zfill(32) + hex(
+    CALLDATA = '0x' + hex(int(pos2BlockMap[path[0]].function))[2:].zfill(8) + hex(individual['param1'])[2:].zfill(
+        32) + hex(
         individual['param1'])[2:].zfill(32)
     # 初始化
     cross_level = 0
@@ -43,7 +44,7 @@ def calculate_fitness(individual, path, pos2BlockMap):
             cross_level += 1
         if pos2BlockMap[p].conditionalJumpExpression != "":
             control_level += 1
-
+    CALLDATA = CALLDATA[10:]
     for i, p in enumerate(path):
         branch_distance -= 1
         if pos2BlockMap[p].isCallFunction:
@@ -53,6 +54,16 @@ def calculate_fitness(individual, path, pos2BlockMap):
             # 开始计算适应度
             # print(pos2BlockMap[p].conditionalJumpExpression)
             # print(CALLDATA)
+            if len(CALLDATA) == 64:
+                if CALLDATA[32:] == 'd8b934580fcE35a11B58C6D73aDeE468a2833fa8':
+                    CALLDATA = CALLDATA[32:]
+                else:
+                    break
+            if len(CALLDATA) == 32:
+                if CALLDATA[32:] + 3000 > 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff:
+                    CALLDATA = CALLDATA[32:]
+                else:
+                    break
 
     f = control_level + (1 - 1.01 ** -branch_distance)
     F = cross_level + (1 - 1.01 ** -f)
