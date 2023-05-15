@@ -11,16 +11,17 @@ import random
 
 # 定义输入域范围（32位二进制编码）
 input_domain = {
-    'param1': (0, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
-    'param2': (0, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
+    'param1': (0, 340282366920938463463374607431768211455),
+    'param2': (0, 340282366920938463463374607431768211455),
     # 可根据实际情况添加更多参数
 }
 
 # 定义遗传算法参数
-population_size = 10
-max_generations = 10
+population_size = 100
+max_generations = 100
 mutation_rate = 0.1
 crossover_rate = 0.5
+
 
 # 生成随机的测试用例个体
 def generate_test_case():
@@ -56,13 +57,10 @@ def calculate_fitness(individual, path, pos2BlockMap):
             # print(pos2BlockMap[p].conditionalJumpExpression)
             # print(CALLDATA)
             if len(CALLDATA) >= 64:
-                if CALLDATA[32:] == 'd8b934580fcE35a11B58C6D73aDeE468a2833fa8':
-                    CALLDATA = CALLDATA[32:]
-                else:
-                    break
-            if len(CALLDATA) >= 32:
-                if CALLDATA[32:] + 3000 > 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff:
-                    CALLDATA = CALLDATA[32:]
+                CALLDATA = CALLDATA[32:]
+            elif len(CALLDATA) >= 32:
+                if int(CALLDATA, 16) + 3000 > int(0xffffffffffffffffffffffffffffffff):
+                    pass
                 else:
                     break
     print(individual)
@@ -105,7 +103,13 @@ def mutation(individual):
 def genetic_algorithm(path, pos2BlockMap):
     path.reverse()
     population = []
-    for _ in range(population_size):
+    test_case_1 = 0
+    test_case_2 = 340282366920938463463374607431768211455
+    fitness = calculate_fitness(test_case_1, path, pos2BlockMap)
+    population.append({'test_case': test_case_1, 'fitness': fitness})
+    fitness = calculate_fitness(test_case_2, path, pos2BlockMap)
+    population.append({'test_case': test_case_2, 'fitness': fitness})
+    for _ in range(population_size - 2):
         test_case = generate_test_case()
         fitness = calculate_fitness(test_case, path, pos2BlockMap)
         population.append({'test_case': test_case, 'fitness': fitness})
