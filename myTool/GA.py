@@ -40,7 +40,7 @@ def calculate_fitness(individual, path, pos2BlockMap):
     # 初始化
     cross_level = 0
     control_level = 0
-    branch_distance = len(path)
+    branch_distance = 0
     for p in path:
         if pos2BlockMap[p].isCallFunction:
             cross_level += 1
@@ -48,7 +48,6 @@ def calculate_fitness(individual, path, pos2BlockMap):
             control_level += 1
     CALLDATA = CALLDATA[10:]
     for i, p in enumerate(path):
-        branch_distance -= 1
         if pos2BlockMap[p].isCallFunction:
             cross_level -= 1
         if pos2BlockMap[p].conditionalJumpExpression != '':
@@ -56,12 +55,18 @@ def calculate_fitness(individual, path, pos2BlockMap):
             # 开始计算适应度
             # print(pos2BlockMap[p].conditionalJumpExpression)
             # print(CALLDATA)
+            print(hex(individual['param1']))
             if len(CALLDATA) >= 64:
-                CALLDATA = CALLDATA[32:]
+                if hex(individual['param1']) == '0xd8b934580fcE35a11B58C6D73aDeE468a2833fa8':
+                    CALLDATA = CALLDATA[32:]
+                else:
+                    branch_distance = abs(individual['param1'] - 0xd8b934580fcE35a11B58C6D73aDeE468a2833fa8)
+                    break
             elif len(CALLDATA) >= 32:
-                if int(CALLDATA, 16) + 3000 > int(0xffffffffffffffffffffffffffffffff):
+                if individual['param2'] + 3000 > int(0xffffffffffffffffffffffffffffffff):
                     pass
                 else:
+                    branch_distance = abs(individual['param2'] + 3000 - 340282366920938463463374607431768211455)
                     break
     print(individual)
     print(branch_distance, cross_level, control_level)
@@ -93,9 +98,20 @@ def crossover(parent1, parent2):
 # 变异操作
 def mutation(individual):
     mutated = individual.copy()
-    for param in input_domain.keys():
+    for param in individual.keys():
+        # print(param)
         if random.random() < mutation_rate:
-            mutated[param] = random.randint(*input_domain[param])
+            number_str = str(individual[param])
+            # 随机选择要替换的数字的位置（从0到len(number_str)-1）
+            mutation_index = random.randint(0, len(number_str) - 1)
+            # 随机生成新数字，确保与原始数字不同
+            new_digit = random.randint(0, 9)
+            while str(new_digit) == number_str[mutation_index]:
+                new_digit = random.randint(0, 9)
+            # 将新数字插入到字符串中替换原始数字
+            number_str = number_str[:mutation_index] + str(new_digit) + number_str[mutation_index + 1:]
+            # 打印修改后的数字
+            mutated[param] = int(number_str)
     return mutated
 
 
@@ -103,14 +119,12 @@ def mutation(individual):
 def genetic_algorithm(path, pos2BlockMap):
     path.reverse()
     population = []
-    test_case_1 = 0
-    test_case_2 = 340282366920938463463374607431768211455
-    fitness = calculate_fitness(test_case_1, path, pos2BlockMap)
-    population.append({'test_case': test_case_1, 'fitness': fitness})
-    fitness = calculate_fitness(test_case_2, path, pos2BlockMap)
-    population.append({'test_case': test_case_2, 'fitness': fitness})
-    for _ in range(population_size - 2):
+    for i in range(population_size):
         test_case = generate_test_case()
+        if i == 0:
+            test_case['param2'] = 0
+        if i == 1:
+            test_case['param2'] = 340282366920938463463374607431768211455
         fitness = calculate_fitness(test_case, path, pos2BlockMap)
         population.append({'test_case': test_case, 'fitness': fitness})
     best_individual = min(population, key=lambda ind: ind['fitness'])

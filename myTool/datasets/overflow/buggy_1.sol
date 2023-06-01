@@ -4,6 +4,7 @@ function bug_intou_inter(Test1 t1, uint b) public returns (uint){
     if(3000 < goal_) {
         b += goal_;  // overflow bug inter contract
     }
+    return b;
 }
 }
 

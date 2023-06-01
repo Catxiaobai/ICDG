@@ -1,11 +1,13 @@
-a = '12345'
-b = 456
-c = 65132
-CALLDATA = '0x' + hex(int(a))[2:].zfill(8) + str(hex(b)[2:].zfill(32)) + str(
-    hex(c)[2:].zfill(32))
-print(CALLDATA[10:])
-print(int(CALLDATA[42:], 16))
-if 13 < 0xf:
-    print(1)
-print(len(CALLDATA))
-print(int(0xffffffffffffffffffffffffffffffff))
+import os
+
+path = './files/smartbugs'  # 输入文件夹地址
+files = os.listdir(path)  # 读入文件夹
+num_png = len(files)  # 统计文件夹中的文件个数
+print(num_png)  # 打印文件个数
+# 输出所有文件名
+ss = set()
+for line in files:
+
+    ss.add(line[-3:])
+
+print(ss)
