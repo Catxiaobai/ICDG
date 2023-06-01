@@ -129,7 +129,7 @@ def genetic_algorithm(path, pos2BlockMap):
         population.append({'test_case': test_case, 'fitness': fitness})
     best_individual = min(population, key=lambda ind: ind['fitness'])
     if best_individual['fitness'] == 0:
-        print("Target path is covered by the generated test case!")
+        # print("Target path is covered by the generated test case!")
         return 1
 
     for generation in range(max_generations):
@@ -144,11 +144,11 @@ def genetic_algorithm(path, pos2BlockMap):
         population = new_population
 
         best_individual = min(population, key=lambda ind: ind['fitness'])
-        print(f"Generation {generation + 1}: Best fitness = {best_individual['fitness']}")
+        # print(f"Generation {generation + 1}: Best fitness = {best_individual['fitness']}")
 
         if best_individual['fitness'] == 0:
-            print("Target path is covered by the generated test case!")
+            # print("Target path is covered by the generated test case!")
             return 1
 
-    print("Failed to cover the target path!")
+    # print("Failed to cover the target path!")
     return 0

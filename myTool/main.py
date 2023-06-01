@@ -154,7 +154,7 @@ def main():
     # file = "timestamps/1.sol"
     # parserFromSourceCodeFiles(file, "Test2")
     # 文件夹下检测
-    filePath = "./files/smartbugs"
+    filePath = "../files/smartbugs/"
     pathList = os.listdir(filePath)
     pathList.sort()
     for fileName in pathList:
