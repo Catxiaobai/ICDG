@@ -345,7 +345,7 @@ class BinaryAnalyzer:
         sstoreList = []
         sloadList = []
         for key, value in self.pos2BlockMap.items():
-            value.infoPrint()
+            # value.infoPrint()
             # 函数入口标记
             if value.function.isdigit():
                 graph.node(str(value.startBlockPos), color='blue')

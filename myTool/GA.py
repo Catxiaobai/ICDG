@@ -55,7 +55,7 @@ def calculate_fitness(individual, path, pos2BlockMap):
             # 开始计算适应度
             # print(pos2BlockMap[p].conditionalJumpExpression)
             # print(CALLDATA)
-            print(hex(individual['param1']))
+            # print(hex(individual['param1']))
             if len(CALLDATA) >= 64:
                 if hex(individual['param1']) == '0xd8b934580fcE35a11B58C6D73aDeE468a2833fa8':
                     CALLDATA = CALLDATA[32:]
@@ -68,8 +68,8 @@ def calculate_fitness(individual, path, pos2BlockMap):
                 else:
                     branch_distance = abs(individual['param2'] + 3000 - 340282366920938463463374607431768211455)
                     break
-    print(individual)
-    print(branch_distance, cross_level, control_level)
+    # print(individual)
+    # print(branch_distance, cross_level, control_level)
     f = control_level + (1 - 1.01 ** -branch_distance)
     F = cross_level + (1 - 1.01 ** -f)
     return F
