@@ -229,12 +229,15 @@ class EvmSimulator:
                         currentBlock.moneyCall = False
                         legalJump = False
                         aim = evmStack[-2]
-
-                        jumpPos = int(self.functionPosMap[aim.split('_')[0]])
+                        if aim.split('_')[0] in self.functionPosMap:
+                            jumpPos = int(self.functionPosMap[aim.split('_')[0]])
+                        else:
+                            print(f"未找到目标合约: {aim.split('_')[0]}")
+                            jumpPos = 0
                         # 如果跳转位置是0或者不在pos2BlockMap中，则跳转不合法
                         if jumpPos == 0 or jumpPos not in self.pos2BlockMap:
                             self.pos2BlockMap[currentBlockID].calledFunctionJumpPos = -1
-                            legalJump = True
+                            legalJump = False
                             self.versionGap = True
                         # 如果跳转位置是一个JUMPDEST，则跳转合法
                         elif self.pos2BlockMap[jumpPos].instrList[0][1][0] == "JUMPDEST":
