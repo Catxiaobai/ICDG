@@ -139,7 +139,7 @@ def parserFromSourceCodeFiles2(file):
                 if bytecode is not None:
                     binaryAnalyzer.getDisasmCode(bytecode)
 
-    binaryAnalyzer.MCFGConstruction()
+    binaryAnalyzer.MCFGConstruction(file)
 
     # if binaryAnalyzer.legalContract:
     #     try:
@@ -162,7 +162,7 @@ def main():
         print(fileName)
         file = filePath + fileName
         parserFromSourceCodeFiles2(file)
-        break
+        # break
     end_time = time.time()  # 计时结束
     print(f"Running time: {end_time - start_time:.2f} s")  # 输出总运行时间
 

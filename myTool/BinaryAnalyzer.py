@@ -334,7 +334,7 @@ class BinaryAnalyzer:
         # print('函数入口', self.publicFunctionStartList)
 
     # myTool:绘制CFG图
-    def drawCFG(self):
+    def drawCFG(self, fileName):
         graph = Digraph("CFG", 'comment', None, None, 'png', None, "UTF-8",
                         {'rankdir': 'TB'},
                         {'color': 'black', 'fontcolor': 'black',
@@ -405,9 +405,9 @@ class BinaryAnalyzer:
                 if int(sl) > int(ss):
                     graph.edge(ss, sl, style='dashed', color='yellow')
         # graph.view()
-        graph.render('cfg', view=True)
+        graph.render(fileName, view=True)
 
-    def MCFGConstruction(self):
+    def MCFGConstruction(self, name):
         self.getDisasm()
         # 获取基本块
         self.getBasicBlock()
@@ -421,4 +421,4 @@ class BinaryAnalyzer:
         # 检测代码块的特征
         self.detectBlockFeatures()
         # myTool:绘制cfg图
-        self.drawCFG()
+        self.drawCFG(name)
