@@ -136,7 +136,8 @@ def parserFromSourceCodeFiles2(file):
                 pos = binaryAnalyzer.getAimDisasmCode(bytecode) + 2
                 binaryAnalyzer.aimContractEndPos = pos
             else:
-                binaryAnalyzer.getDisasmCode(bytecode)
+                if bytecode is not None:
+                    binaryAnalyzer.getDisasmCode(bytecode)
 
     binaryAnalyzer.MCFGConstruction()
 
@@ -154,7 +155,7 @@ def main():
     # file = "timestamps/1.sol"
     # parserFromSourceCodeFiles(file, "Test2")
     # 文件夹下检测
-    filePath = "../files/smartbugs/"
+    filePath = "../files/example/"
     pathList = os.listdir(filePath)
     pathList.sort()
     for fileName in pathList:
