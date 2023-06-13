@@ -141,12 +141,12 @@ def parserFromSourceCodeFiles2(file):
 
     binaryAnalyzer.MCFGConstruction()
 
-    if binaryAnalyzer.legalContract:
-        try:
-            vulnScan = VulnerabilityScanner(binaryAnalyzer)
-            vulnScan.scanVulnerability()
-        except Exception as e:
-            print(e)
+    # if binaryAnalyzer.legalContract:
+    #     try:
+    #         vulnScan = VulnerabilityScanner(binaryAnalyzer)
+    #         vulnScan.scanVulnerability()
+    #     except Exception as e:
+    #         print(e)
 
 
 def main():
